@@ -1,0 +1,13 @@
+/* TEAM */
+  Name: Insights Team
+  Site: https://insights.ge
+  Contact: https://discord.gg/
+  Location: Global
+
+/* SITE */
+  Last update: 2026
+  Language: English, Georgian
+  Standards: HTML5, CSS3, Laravel, TailwindCSS
+  Components: Livewire, Alpine.js
+  Doctype: HTML5
+

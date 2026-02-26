@@ -1,0 +1,53 @@
+# ForkMe — Laravel Starter Kit
+
+ForkMe is an opinionated Laravel boilerplate built by the Insights team. It provides a production-ready foundation for new web projects, with the most common packages pre-installed and configured so teams can fork and start building immediately.
+
+## Purpose
+
+- Eliminate repetitive setup across projects
+- Enforce consistent tooling and conventions
+- Ship with admin panel, permissions, media, i18n, and SEO out of the box
+
+## Tech Stack
+
+### Backend
+- **PHP**: ^8.2
+- **Framework**: Laravel 12
+- **Admin Panel**: Filament 5 (with Shield for role/permission UI)
+- **Roles & Permissions**: Spatie Laravel Permission
+- **Media**: Spatie Laravel Media Library
+- **Translatable Models**: Spatie Laravel Translatable
+- **Sitemap**: Spatie Laravel Sitemap
+- **Schema.org**: Spatie Schema Org
+- **Internationalization**: mcamara/laravel-localization (multi-locale URL routing)
+- **Language Switcher**: Bezhansalleh Filament Language Switch
+
+### Frontend
+- **Build Tool**: Vite 7
+- **CSS**: Tailwind CSS v4
+- **HTTP Client**: Axios
+
+### Testing
+- **Framework**: Pest 3 with Laravel plugin
+
+### Dev Tools
+- **Query Detector**: beyondcode/laravel-query-detector (N+1 detection)
+- **Log Viewer**: Laravel Pail
+- **Code Style**: Laravel Pint
+- **REPL**: Laravel Tinker
+
+## Setup
+
+```bash
+composer run setup
+```
+
+This runs: `composer install` → copy `.env` → `key:generate` → `migrate` → `npm install` → `npm run build`
+
+## Key Conventions
+
+- Filament resources use Shield for authorization
+- All models with translatable content use Spatie Translatable
+- Roles and permissions managed through Filament Shield UI
+- Multi-language routing handled by LaravelLocalization middleware group
+- Pest used for all automated tests
