@@ -17,8 +17,10 @@ use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
+use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 use Filament\Support\Enums\Width;
+use Filament\Enums\ThemeMode;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -39,12 +41,12 @@ class AdminPanelProvider extends PanelProvider
             ->maxContentWidth(Width::Full)
             ->unsavedChangesAlerts()
             ->sidebarWidth('15rem')
-            ->brandLogo(asset('images/logo.svg'))
-            ->darkModeBrandLogo(asset('images/logo.svg'))
+            ->brandLogo(asset('images/logo-dark.avif'))
+            ->darkModeBrandLogo(asset('images/logo-light.avif'))
             ->brandLogoHeight(fn () => auth()->check() ? '3rem' : '2rem')
             ->favicon(asset('images/logo.svg'))
             ->databaseNotifications()
-            // ->defaultThemeMode(ThemeMode::Light)
+            ->defaultThemeMode(ThemeMode::System)
             ->viteTheme('resources/css/filament/admin/theme.css')
             ->profile()
             ->spa(hasPrefetching: true)
@@ -53,6 +55,9 @@ class AdminPanelProvider extends PanelProvider
             ->passwordReset()
             ->emailVerification()
 
+            ->plugins([
+                FilamentShieldPlugin::make(),
+            ])
 
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')

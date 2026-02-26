@@ -23,5 +23,17 @@ class DatabaseSeeder extends Seeder
                 'password' => Hash::make('0e9caf820'),
             ]
         );
+
+        $this->command->call('shield:generate', [
+            '--all' => true,
+            '--panel' => 'admin',
+            '--option' => 'policies_and_permissions',
+        ]);
+
+        $this->command->call('shield:super-admin', [
+            '--user' => 1,
+            '--panel' => 'admin',
+        ]);
+
     }
 }

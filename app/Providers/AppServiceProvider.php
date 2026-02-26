@@ -27,8 +27,27 @@ class AppServiceProvider extends ServiceProvider
     public function boot()
     {
         LanguageSwitch::configureUsing(function (LanguageSwitch $switch) {
+
+            $supportedLocales = config('laravellocalization.supportedLocales', ['en' => []]);
+            $locales = array_keys($supportedLocales);
+
+            $labels = [];
+            foreach ($supportedLocales as $code => $locale) {
+                $labels[$code] = $locale['native'] ?? $locale['name'] ?? $code;
+            }
+
+            $flags = [];
+            foreach ($locales as $code) {
+                $flags[$code] = asset("images/langs/{$code}.webp");
+            }
+
             $switch
-                ->locales(['en','ka']);
+                ->locales($locales)
+                ->labels($labels)
+                ->flags($flags)
+                ->flagsOnly()
+                ->circular()
+                ->visible(outsidePanels: true);
         });
 
         //Very USEFULFRIENDLY
