@@ -28,6 +28,7 @@ class AdminPanelProvider extends PanelProvider
             ->default()
             ->id('admin')
             ->path('admin')
+            ->viteTheme('resources/css/filament/admin/theme.css')
             ->login()
             ->colors([
                 'primary' => Color::Amber,
@@ -44,6 +45,7 @@ class AdminPanelProvider extends PanelProvider
             ->favicon(asset('images/logo.svg'))
             ->databaseNotifications()
             // ->defaultThemeMode(ThemeMode::Light)
+            ->viteTheme('resources/css/filament/admin/theme.css')
             ->profile()
             ->spa(hasPrefetching: true)
             ->login()
