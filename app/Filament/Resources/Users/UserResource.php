@@ -20,6 +20,8 @@ class UserResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::Users;
 
+    protected static ?int $navigationSort = 1;
+
     public static function form(Schema $schema): Schema
     {
         return UserForm::configure($schema);
@@ -44,5 +46,20 @@ class UserResource extends Resource
             'create' => CreateUser::route('/create'),
             'edit' => EditUser::route('/{record}/edit'),
         ];
+    }
+
+    public static function getNavigationGroup(): ?string
+    {
+        return __('panel.navigation_groups.administration');
+    }
+
+    public static function getNavigationLabel(): string
+    {
+        return __('panel.users.layout.users');
+    }
+
+    public static function getLabel(): ?string
+    {
+        return __('panel.users.layout.users');
     }
 }
