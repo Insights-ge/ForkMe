@@ -2,6 +2,9 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\Pages\Auth\Login;
+use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
+use Filament\Enums\ThemeMode;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -10,6 +13,7 @@ use Filament\Pages\Dashboard;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
+use Filament\Support\Enums\Width;
 use Filament\Widgets\AccountWidget;
 use Filament\Widgets\FilamentInfoWidget;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
@@ -17,10 +21,7 @@ use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
-use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
-use Filament\Support\Enums\Width;
-use Filament\Enums\ThemeMode;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -30,13 +31,18 @@ class AdminPanelProvider extends PanelProvider
             ->default()
             ->id('admin')
             ->path('admin')
+            ->login(Login::class)
+            ->profile()
+            ->spa(hasPrefetching: true)
+            ->registration()
+            ->passwordReset()
+            ->emailVerification()
+            ->databaseNotifications()
+
             ->viteTheme('resources/css/filament/admin/theme.css')
-            ->login()
             ->colors([
                 'primary' => Color::Amber,
             ])
-
-
             ->sidebarCollapsibleOnDesktop()
             ->maxContentWidth(Width::Full)
             ->unsavedChangesAlerts()
@@ -45,15 +51,7 @@ class AdminPanelProvider extends PanelProvider
             ->darkModeBrandLogo(asset('images/logo-light.avif'))
             ->brandLogoHeight(fn () => auth()->check() ? '3rem' : '2rem')
             ->favicon(asset('favicon.ico'))
-            ->databaseNotifications()
             ->defaultThemeMode(ThemeMode::System)
-            ->viteTheme('resources/css/filament/admin/theme.css')
-            ->profile()
-            ->spa(hasPrefetching: true)
-            ->login()
-            ->registration()
-            ->passwordReset()
-            ->emailVerification()
 
             ->plugins([
                 FilamentShieldPlugin::make(),
@@ -66,8 +64,8 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\Filament\Widgets')
             ->widgets([
-                AccountWidget::class,
-                FilamentInfoWidget::class,
+                // AccountWidget::class,
+                // FilamentInfoWidget::class,
             ])
             ->middleware([
                 EncryptCookies::class,
