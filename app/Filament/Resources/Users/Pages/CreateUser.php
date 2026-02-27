@@ -12,7 +12,7 @@ class CreateUser extends CreateRecord
 
     protected function getRedirectUrl(): string
     {
-        return static::getResource()::getUrl('index');
+        return UserResource::getUrl('index');
     }
 
     public function getTitle(): string|Htmlable

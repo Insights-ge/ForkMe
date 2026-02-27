@@ -24,11 +24,13 @@ class AppServiceProvider extends ServiceProvider
     /**
      * Bootstrap any application services.
      */
-    public function boot()
+    public function boot(): void
     {
         LanguageSwitch::configureUsing(function (LanguageSwitch $switch) {
 
+            /** @var array<string, array<string, string>> $supportedLocales */
             $supportedLocales = config('laravellocalization.supportedLocales', ['en' => []]);
+
             $locales = array_keys($supportedLocales);
 
             $labels = [];
