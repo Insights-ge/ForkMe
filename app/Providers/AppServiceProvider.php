@@ -2,14 +2,14 @@
 
 namespace App\Providers;
 
-use Illuminate\Support\ServiceProvider;
 use BezhanSalleh\LanguageSwitch\LanguageSwitch;
+use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
-use Filament\Actions\DeleteAction;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
+use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -50,7 +50,7 @@ class AppServiceProvider extends ServiceProvider
                 ->visible(outsidePanels: true);
         });
 
-        //Very USEFULFRIENDLY
+        // Very USEFULFRIENDLY
         ViewAction::configureUsing(fn (ViewAction $action) => $action->iconButton());
         EditAction::configureUsing(fn (EditAction $action) => $action->iconButton());
         DeleteAction::configureUsing(fn (DeleteAction $action) => $action->iconButton());
