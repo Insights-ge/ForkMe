@@ -11,7 +11,7 @@ Route::group(
     function () {
 
         Route::get('/', function () {
-            return view('welcome');
+            return view('welcome')->name('home');
         });
     }
 );

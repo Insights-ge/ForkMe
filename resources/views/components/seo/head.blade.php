@@ -22,7 +22,7 @@
     $description = $description ?? trim($__env->yieldContent('meta_description', __('landing.description')));
     $keywords = $keywords ?? trim($__env->yieldContent('meta_keywords', __('landing.keywords')));
 
-    $ogImage = $ogImage ?? config('seo.og.image');
+    $ogImage = $ogImage ?? asset(config('seo.og.image'));
     $nowIso = \Illuminate\Support\Carbon::now()->toIso8601String();
 
     $base = url('/');
