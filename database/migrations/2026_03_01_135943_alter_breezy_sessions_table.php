@@ -21,7 +21,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('breezy_sessions', function (Blueprint $table) {
-            $table->after('panel_id', function (BluePrint $table) {
+            $table->after('panel_id', function (Blueprint $table) {
                 $table->string('guard')->nullable();
                 $table->string('ip_address', 45)->nullable();
                 $table->text('user_agent')->nullable();

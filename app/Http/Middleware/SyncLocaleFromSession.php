@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use Carbon\Carbon;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
@@ -14,7 +15,7 @@ class SyncLocaleFromSession
      * Sync the locale between mcamara/laravel-localization session,
      * the Filament Language Switch cookie, and the application locale.
      *
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
+     * @param  Closure(Request): (Response)  $next
      */
     public function handle(Request $request, Closure $next): Response
     {
@@ -56,8 +57,8 @@ class SyncLocaleFromSession
                 setlocale(LC_TIME, $regionalLocale);
             }
 
-            if (class_exists(\Carbon\Carbon::class)) {
-                \Carbon\Carbon::setLocale($localeToUse);
+            if (class_exists(Carbon::class)) {
+                Carbon::setLocale($localeToUse);
             }
 
             if ($sessionLocale !== $localeToUse) {
