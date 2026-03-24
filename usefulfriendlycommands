@@ -25,5 +25,6 @@ composer update
 php artisan boost:update
 php artisan icons:cache
 ./vendor/bin/pint
-
+./vendor/bin/phpstan analyse --memory-limit=4G
+vendor/bin/filacheck
 
