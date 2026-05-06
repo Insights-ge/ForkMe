@@ -26,7 +26,7 @@ class UserForm
                     ->label(__('panel.users.form.password'))
                     ->password()
                     ->required(),
-                Select::make('user.roles')
+                Select::make('roles')
                     ->label(__('panel.users.form.role'))
                     ->relationship('roles', 'name')
                     ->multiple()
