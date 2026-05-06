@@ -10,13 +10,13 @@ class CreateUser extends CreateRecord
 {
     protected static string $resource = UserResource::class;
 
-    protected function getRedirectUrl(): string
-    {
-        return UserResource::getUrl('index');
-    }
-
     public function getTitle(): string|Htmlable
     {
         return __('panel.users.layout.create_user');
+    }
+
+    protected function getRedirectUrl(): string
+    {
+        return UserResource::getUrl('index');
     }
 }

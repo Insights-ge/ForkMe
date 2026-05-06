@@ -11,15 +11,15 @@ class ListUsers extends ListRecords
 {
     protected static string $resource = UserResource::class;
 
+    public function getTitle(): string|Htmlable
+    {
+        return __('panel.users.layout.users');
+    }
+
     protected function getHeaderActions(): array
     {
         return [
             CreateAction::make(),
         ];
-    }
-
-    public function getTitle(): string|Htmlable
-    {
-        return __('panel.users.layout.users');
     }
 }
