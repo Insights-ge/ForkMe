@@ -2,6 +2,7 @@
 
 namespace App\Support;
 
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 use Spatie\MediaLibrary\Support\PathGenerator\PathGenerator;
@@ -29,13 +30,24 @@ class MediaPathGenerator implements PathGenerator
     {
         if (method_exists($media->model_type, 'mediaDirectory')) {
             $media->loadMissing('model');
-            $directory = $media->getRelationValue('model')?->mediaDirectory();
+            $model = $media->getRelationValue('model');
+
+            if (! $model instanceof Model || ! method_exists($model, 'mediaDirectory')) {
+                return $this->fallbackDirectory($media);
+            }
+
+            $directory = $model->mediaDirectory();
 
             if (is_string($directory)) {
                 return $directory;
             }
         }
 
+        return $this->fallbackDirectory($media);
+    }
+
+    private function fallbackDirectory(Media $media): string
+    {
         return Str::plural(Str::kebab(class_basename($media->model_type)));
     }
 }

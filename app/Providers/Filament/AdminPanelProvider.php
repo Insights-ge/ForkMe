@@ -151,7 +151,9 @@ class AdminPanelProvider extends PanelProvider
     private function settingValue(string $property): ?string
     {
         try {
-            return $this->settings()->{$property};
+            $value = $this->settings()->{$property};
+
+            return is_string($value) ? $value : null;
         } catch (MissingSettings|QueryException) {
             return null;
         }

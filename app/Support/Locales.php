@@ -38,6 +38,8 @@ class Locales
 
     /**
      * Generates a localized URL for a named route with the given locale prefix.
+     *
+     * @param  array<string, mixed>  $parameters
      */
     public static function route(string $name, array $parameters = [], ?string $locale = null): string
     {
@@ -53,10 +55,12 @@ class Locales
      */
     public static function enabledOptions(): array
     {
-        return array_reduce(
-            self::enabled(),
-            fn (array $carry, Locale $locale) => $carry + [$locale->value => $locale->label()],
-            [],
-        );
+        $options = [];
+
+        foreach (self::enabled() as $locale) {
+            $options[$locale->value] = $locale->label();
+        }
+
+        return $options;
     }
 }
