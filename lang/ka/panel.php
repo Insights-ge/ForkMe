@@ -31,8 +31,8 @@ return [
         ],
     ],
     'cache_tools' => [
-        'navigation_label' => 'Cache ინსტრუმენტები',
-        'title' => 'Cache ინსტრუმენტები',
+        'navigation_label' => 'Cache',
+        'title' => 'ქეშ ინსტრუმენტები',
         'run' => 'გაშვება',
         'sections' => [
             'general' => 'ზოგადი',
@@ -66,7 +66,7 @@ return [
     'settings' => [
         'general' => [
             'layout' => [
-                'general_settings' => 'ზოგადი პარამეტრები',
+                'general_settings' => 'პარამეტრები',
             ],
             'sections' => [
                 'general' => 'ზოგადი',
@@ -105,9 +105,9 @@ return [
     ],
     'translation_lines' => [
         'layout' => [
-            'translation_lines' => 'თარგმანის სტრიქონები',
-            'edit_translation_line' => 'თარგმანის სტრიქონის რედაქტირება',
-            'translation_line' => 'თარგმანის სტრიქონი',
+            'translation_lines' => 'თარგმანები',
+            'edit_translation_line' => 'თარგმანის რედაქტირება',
+            'translation_line' => 'თარგმანი',
         ],
         'tabs' => [
             'all' => 'ყველა',
@@ -128,7 +128,7 @@ return [
             'key' => 'გასაღები',
             'updated_at' => 'განახლების თარიღი',
             'missing_translations' => 'გამოტოვებული თარგმანები',
-            'empty_heading' => 'თარგმანის სტრიქონები ვერ მოიძებნა',
+            'empty_heading' => 'თარგმანები ვერ მოიძებნა',
             'empty_description' => 'სცადეთ ფაილებიდან სინქრონიზაცია.',
         ],
     ],
