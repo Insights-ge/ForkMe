@@ -85,8 +85,6 @@ class AdminPanelProvider extends PanelProvider
             ])
 
             ->navigationGroups([
-                NavigationGroup::make(fn () => __('panel.navigation_groups.crm')),
-                NavigationGroup::make(fn () => __('panel.navigation_groups.operations')),
                 NavigationGroup::make(fn () => __('panel.navigation_groups.administration')),
                 NavigationGroup::make(fn () => __('panel.navigation_groups.configuration')),
             ])
@@ -147,7 +145,7 @@ class AdminPanelProvider extends PanelProvider
     {
         $path = $this->settingValue('filament_auth_page_bg_image');
 
-        return $path ? asset($path) : asset('images/auth.jpg');
+        return $path ? asset($path) : asset('images/cover.avif');
     }
 
     private function settingValue(string $property): ?string
