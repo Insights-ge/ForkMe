@@ -36,5 +36,6 @@ class DatabaseSeeder extends Seeder
         ]);
 
         $this->call(GeneralSettingsSeeder::class);
+        $this->call(BackupPermissionSeeder::class);
     }
 }

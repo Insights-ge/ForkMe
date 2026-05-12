@@ -28,6 +28,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 use Jeffgreco13\FilamentBreezy\BreezyCore;
 use Leandrocfe\FilamentApexCharts\FilamentApexChartsPlugin;
+use ShuvroRoy\FilamentSpatieLaravelBackup\FilamentSpatieLaravelBackupPlugin;
 use Spatie\LaravelSettings\Exceptions\MissingSettings;
 
 class AdminPanelProvider extends PanelProvider
@@ -83,6 +84,9 @@ class AdminPanelProvider extends PanelProvider
                     ->formPanelWidth('40%')
                     ->emptyPanelBackgroundImageUrl($this->authPageBgImageUrl()),
                 FilamentApexChartsPlugin::make(),
+                FilamentSpatieLaravelBackupPlugin::make()
+                    ->navigationGroup(fn () => __('panel.navigation_groups.configuration')),
+
             ])
 
             ->navigationGroups([
