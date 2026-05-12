@@ -24,6 +24,7 @@ use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 use Jeffgreco13\FilamentBreezy\BreezyCore;
 use Leandrocfe\FilamentApexCharts\FilamentApexChartsPlugin;
@@ -124,28 +125,28 @@ class AdminPanelProvider extends PanelProvider
     {
         $path = $this->settingValue('filament_brand_logo');
 
-        return $path ? asset($path) : asset('images/logo-dark.avif');
+        return $path ? Storage::disk('public')->url($path) : asset('images/logo-dark.avif');
     }
 
     private function darkModeBrandLogoUrl(): string
     {
         $path = $this->settingValue('filament_dark_mode_brand_logo');
 
-        return $path ? asset($path) : asset('images/logo-light.avif');
+        return $path ? Storage::disk('public')->url($path) : asset('images/logo-light.avif');
     }
 
     private function faviconUrl(): string
     {
         $path = $this->settingValue('filament_favicon');
 
-        return $path ? asset($path) : asset('favicon.ico');
+        return $path ? Storage::disk('public')->url($path) : asset('favicon.ico');
     }
 
     private function authPageBgImageUrl(): string
     {
         $path = $this->settingValue('filament_auth_page_bg_image');
 
-        return $path ? asset($path) : asset('images/cover.avif');
+        return $path ? Storage::disk('public')->url($path) : asset('images/cover.avif');
     }
 
     private function settingValue(string $property): ?string
