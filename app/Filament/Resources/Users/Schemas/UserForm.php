@@ -21,7 +21,8 @@ class UserForm
                     ->email()
                     ->required(),
                 DateTimePicker::make('email_verified_at')
-                    ->label(__('panel.users.form.email_verified_at')),
+                    ->label(__('panel.users.form.email_verified_at'))
+                    ->native(false),
                 TextInput::make('password')
                     ->label(__('panel.users.form.password'))
                     ->password()
