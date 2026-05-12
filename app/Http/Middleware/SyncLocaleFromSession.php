@@ -2,29 +2,33 @@
 
 namespace App\Http\Middleware;
 
+use App\Enums\Locale;
+use App\Settings\GeneralSettings;
+use App\Support\Locales;
 use Carbon\Carbon;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Cookie;
+use Illuminate\Support\Facades\URL;
 use Symfony\Component\HttpFoundation\Response;
 
 class SyncLocaleFromSession
 {
     /**
-     * Sync the locale between mcamara/laravel-localization session,
-     * the Filament Language Switch cookie, and the application locale.
+     * Resolve and apply the active locale from route, cookie, session, or browser preference.
+     * Redirects the root path to the user's preferred non-default locale when applicable.
      *
      * @param  Closure(Request): (Response)  $next
      */
     public function handle(Request $request, Closure $next): Response
     {
-        // 1. Get available locales
-        $supportedLocales = config('laravellocalization.supportedLocales', []);
-        $supportedLocales = is_array($supportedLocales) ? $supportedLocales : [];
-        $supportedKeys = array_keys($supportedLocales);
+        $defaultLocale = app(GeneralSettings::class)->default_locale;
+        $supportedKeys = array_map(fn (Locale $l) => $l->value, Locales::enabled());
 
-        // 2. Identify potential locale sources
+        $routeLocale = $request->route('locale');
+        $routeLocale = is_string($routeLocale) ? $routeLocale : null;
+
         $sessionLocale = session('locale');
         $sessionLocale = is_string($sessionLocale) ? $sessionLocale : null;
 
@@ -32,42 +36,43 @@ class SyncLocaleFromSession
         $cookieLocale = $request->cookie($cookieName);
         $cookieLocale = is_string($cookieLocale) ? $cookieLocale : null;
 
-        // 3. Determine context
-        $previousUrl = url()->previous();
-        $isInternalNavigation = str_contains($previousUrl, '/admin');
-
-        $localeToUse = null;
-
-        // 4. Resolve Locale Priority
-        if (! $isInternalNavigation && $sessionLocale && in_array($sessionLocale, $supportedKeys, true)) {
-            $localeToUse = $sessionLocale;
+        if ($routeLocale && in_array($routeLocale, $supportedKeys, true)) {
+            $localeToUse = $routeLocale;
         } elseif ($cookieLocale && in_array($cookieLocale, $supportedKeys, true)) {
             $localeToUse = $cookieLocale;
         } elseif ($sessionLocale && in_array($sessionLocale, $supportedKeys, true)) {
             $localeToUse = $sessionLocale;
+        } else {
+            // On the root path, honour browser language preference for first-time visitors.
+            $browser = $request->path() === '/' ? $request->getPreferredLanguage($supportedKeys) : null;
+            $localeToUse = (is_string($browser) && in_array($browser, $supportedKeys, true))
+                ? $browser
+                : $defaultLocale;
         }
 
-        // 5. Apply & Sync
-        if ($localeToUse !== null) {
-            App::setLocale($localeToUse);
+        // Always redirect root to a localized home (/{locale}/).
+        if ($request->path() === '/') {
+            return redirect(Locales::route('home', [], $localeToUse), 302);
+        }
 
-            $localeData = $supportedLocales[$localeToUse] ?? null;
-            $regionalLocale = is_array($localeData) ? ($localeData['regional'] ?? null) : null;
-            if (is_string($regionalLocale)) {
-                setlocale(LC_TIME, $regionalLocale);
-            }
+        App::setLocale($localeToUse);
 
-            if (class_exists(Carbon::class)) {
-                Carbon::setLocale($localeToUse);
-            }
+        $routeHasLocaleParameter = $request->route()?->hasParameter('locale') ?? false;
+        URL::defaults($routeHasLocaleParameter ? ['locale' => $localeToUse] : []);
 
-            if ($sessionLocale !== $localeToUse) {
-                session(['locale' => $localeToUse]);
-            }
+        $localeEnum = Locale::from($localeToUse);
+        setlocale(LC_TIME, $localeEnum->regional());
 
-            if ($cookieLocale !== $localeToUse) {
-                Cookie::queue($cookieName, $localeToUse, 60 * 24 * 365);
-            }
+        if (class_exists(Carbon::class)) {
+            Carbon::setLocale($localeToUse);
+        }
+
+        if ($sessionLocale !== $localeToUse) {
+            session(['locale' => $localeToUse]);
+        }
+
+        if ($cookieLocale !== $localeToUse) {
+            Cookie::queue($cookieName, $localeToUse, 60 * 24 * 365);
         }
 
         return $next($request);

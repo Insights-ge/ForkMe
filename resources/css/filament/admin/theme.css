@@ -9,4 +9,5 @@
 @source '../../../../resources/views/filament/**/*';
 @source '../../../../vendor/bezhansalleh/filament-language-switch/resources/views/**/*.blade.php';
 @source '../../../../vendor/jeffgreco13/filament-breezy/resources/**/*';
+@source '../../../../vendor/diogogpinto/filament-auth-ui-enhancer/resources/**/*.blade.php';
 

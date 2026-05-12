@@ -1,70 +1,67 @@
 @php
-    $supportedConfig = config('laravellocalization.supportedLocales') ?? [];
-    $supportedLocales = array_keys($supportedConfig) ?: [app()->getLocale()];
+    use App\Settings\GeneralSettings;
+    use App\Support\Locales;
 
-    $currentLocale = app()->getLocale();
-    $currentRegionalBcp47 = str_replace('_', '-', $supportedConfig[$currentLocale]['regional'] ?? $currentLocale);
+    /** @var GeneralSettings $settings */
+    $settings = app(GeneralSettings::class);
 
-    $ogLocaleOf = function ($loc) use ($supportedConfig) {
-        return str_replace('-', '_', $supportedConfig[$loc]['regional'] ?? $loc);
-    };
+    $enabledLocales  = Locales::enabled();
+    $currentLocale   = app()->getLocale();
+    $defaultLocale   = $settings->default_locale;
 
-    $hreflangOf = fn($loc) => strtolower($loc);
+    $regionalOf = fn (string $code): string => str_replace('-', '_', \App\Enums\Locale::from($code)->regional());
+    $hreflangOf = fn (string $code): string => strtolower($code);
 
-    // Default params logic (can be extended)
-    $params = $params ?? [];
+    $params      = $params ?? [];
+    $canonical   = url()->current();
+    $xDefault    = route('home', array_merge(['locale' => $defaultLocale], $params));
 
-    $canonical = LaravelLocalization::getLocalizedURL($currentLocale, null, $params, true);
-    $defaultLocale = LaravelLocalization::getDefaultLocale() ?? (config('app.fallback_locale') ?? 'en');
-    $xDefaultHref = LaravelLocalization::getLocalizedURL($defaultLocale, null, $params, true);
+    $title       = $title       ?? trim($__env->yieldContent('title', $settings->site_name));
+    $description = $description ?? trim($__env->yieldContent('meta_description', $settings->default_meta_description ?? ''));
+    $keywords    = $keywords    ?? trim($__env->yieldContent('meta_keywords', $settings->default_meta_keywords ?? ''));
 
-    $title = $title ?? trim($__env->yieldContent('title', config('seo.site_name')));
-    $description = $description ?? trim($__env->yieldContent('meta_description', __('landing.description')));
-    $keywords = $keywords ?? trim($__env->yieldContent('meta_keywords', __('landing.keywords')));
+    $ogImage  = $ogImage  ?? ($settings->og_image ? asset($settings->og_image) : null);
+    $nowIso   = \Illuminate\Support\Carbon::now()->toIso8601String();
 
-    $ogImage = $ogImage ?? asset(config('seo.og.image'));
-    $nowIso = \Illuminate\Support\Carbon::now()->toIso8601String();
-
-    $base = url('/');
-    $orgId = $base . '#org';
+    $base   = url('/');
+    $orgId  = $base . '#org';
     $siteId = $base . '#website';
 
-    $langsForSchema = [];
-    foreach ($supportedLocales as $loc) {
-        $langsForSchema[] = str_replace('_', '-', $supportedConfig[$loc]['regional'] ?? $loc);
-    }
+    $langsForSchema = array_map(
+        fn (\App\Enums\Locale $l) => str_replace('_', '-', $l->regional()),
+        $enabledLocales,
+    );
 
     $graph = [
         '@context' => 'https://schema.org',
-        '@graph' => [
+        '@graph'   => [
             [
-                '@type' => 'Organization',
-                '@id' => $orgId,
-                'name' => config('seo.site_name'),
-                'url' => $base,
-                'logo' => [
+                '@type'  => 'Organization',
+                '@id'    => $orgId,
+                'name'   => $settings->site_name,
+                'url'    => $base,
+                'logo'   => [
                     '@type' => 'ImageObject',
-                    'url' => asset(config('seo.branding.logo_main')),
+                    'url'   => $settings->branding_logo_main ? asset($settings->branding_logo_main) : null,
                 ],
-                // Add more organization details from config if needed
             ],
             [
-                '@type' => 'WebSite',
-                '@id' => $siteId,
-                'url' => $base,
-                'name' => config('seo.site_name'),
+                '@type'      => 'WebSite',
+                '@id'        => $siteId,
+                'url'        => $base,
+                'name'       => $settings->site_name,
                 'inLanguage' => $langsForSchema,
-                'publisher' => ['@id' => $orgId],
+                'publisher'  => ['@id' => $orgId],
             ],
             [
-                '@type' => 'WebPage',
-                '@id' => $canonical . '#webpage',
-                'url' => $canonical,
-                'name' => $title,
-                'inLanguage' => $currentRegionalBcp47,
+                '@type'       => 'WebPage',
+                '@id'         => $canonical . '#webpage',
+                'url'         => $canonical,
+                'name'        => $title,
+                'inLanguage'  => str_replace('_', '-', \App\Enums\Locale::from($currentLocale)->regional()),
                 'description' => $description,
-                'isPartOf' => ['@id' => $siteId],
-                'publisher' => ['@id' => $orgId],
+                'isPartOf'    => ['@id' => $siteId],
+                'publisher'   => ['@id' => $orgId],
                 'dateModified' => $nowIso,
             ],
         ],
@@ -87,42 +84,41 @@
 
 <link rel="canonical" href="{{ $canonical }}">
 
-<meta property="og:site_name" content="{{ config('seo.site_name') }}">
-<meta property="og:type" content="{{ $ogType ?? config('seo.og.type', 'website') }}">
+<meta property="og:site_name" content="{{ $settings->site_name }}">
+<meta property="og:type" content="{{ $ogType ?? $settings->og_type }}">
 <meta property="og:url" content="{{ $canonical }}">
 <meta property="og:title" content="{{ $title }}">
 <meta property="og:description" content="{{ $description }}">
-<meta property="og:image" content="{{ $ogImage }}">
-<meta property="og:image:width" content="{{ config('seo.og.image_width') }}">
-<meta property="og:image:height" content="{{ config('seo.og.image_height') }}">
-<meta property="og:locale" content="{{ $ogLocaleOf($currentLocale) }}">
+@if ($ogImage)
+    <meta property="og:image" content="{{ $ogImage }}">
+    <meta property="og:image:width" content="{{ $settings->og_image_width }}">
+    <meta property="og:image:height" content="{{ $settings->og_image_height }}">
+@endif
+<meta property="og:locale" content="{{ $regionalOf($currentLocale) }}">
 
-@foreach ($supportedLocales as $alt)
-    @if ($alt !== $currentLocale)
-        <meta property="og:locale:alternate" content="{{ $ogLocaleOf($alt) }}">
+@foreach ($enabledLocales as $alt)
+    @if ($alt->value !== $currentLocale)
+        <meta property="og:locale:alternate" content="{{ $regionalOf($alt->value) }}">
     @endif
 @endforeach
 
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="{{ $title }}">
 <meta name="twitter:description" content="{{ $description }}">
-<meta name="twitter:image" content="{{ $ogImage }}">
-@if (config('seo.social.twitter'))
-    <meta name="twitter:site" content="{{ config('seo.social.twitter') }}">
+@if ($ogImage)
+    <meta name="twitter:image" content="{{ $ogImage }}">
+@endif
+@if ($settings->social_facebook)
+    <meta property="og:see_also" content="{{ $settings->social_facebook }}">
 @endif
 
-<link rel="alternate" hreflang="x-default" href="{{ $xDefaultHref }}">
-@foreach ($supportedLocales as $loc)
-    @php
-        $altUrl = LaravelLocalization::getLocalizedURL($loc, null, $params, true);
-    @endphp
-    @if ($altUrl)
-        <link rel="alternate" hreflang="{{ $hreflangOf($loc) }}" href="{{ $altUrl }}">
-    @endif
+<link rel="alternate" hreflang="x-default" href="{{ $xDefault }}">
+@foreach ($enabledLocales as $loc)
+    <link rel="alternate" hreflang="{{ $hreflangOf($loc->value) }}" href="{{ route('home', array_merge(['locale' => $loc->value], $params)) }}">
 @endforeach
 
 <script type="application/ld+json">
-    {!! json_encode($graph, JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE) !!}
+    {!! json_encode($graph, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}
 </script>
 
 <x-seo.gtm-head />

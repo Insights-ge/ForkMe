@@ -4,26 +4,30 @@ namespace App\Providers\Filament;
 
 use App\Filament\Pages\Auth\Login;
 use App\Http\Middleware\SyncLocaleFromSession;
+use App\Settings\GeneralSettings;
 use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
+use DiogoGPinto\AuthUIEnhancer\AuthUIEnhancerPlugin;
 use Filament\Enums\ThemeMode;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
+use Filament\Navigation\NavigationGroup;
 use Filament\Pages\Dashboard;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
 use Filament\Support\Enums\Width;
-use Filament\Widgets\AccountWidget;
-use Filament\Widgets\FilamentInfoWidget;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
+use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 use Jeffgreco13\FilamentBreezy\BreezyCore;
+use Leandrocfe\FilamentApexCharts\FilamentApexChartsPlugin;
+use Spatie\LaravelSettings\Exceptions\MissingSettings;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -41,30 +45,51 @@ class AdminPanelProvider extends PanelProvider
             ->emailVerification()
             ->databaseNotifications()
 
+            ->font('Noto Sans Georgian')
+
             ->viteTheme('resources/css/filament/admin/theme.css')
             ->colors([
-                'primary' => Color::Amber,
+                'primary' => Color::hex('#6f69c1'),
+                'pink' => Color::hex('#ff006e'),
+                'blue' => Color::hex('#00b4d8'),
+                'green' => Color::hex('#38b000'),
+                'yellow' => Color::hex('#ffc300'),
+                'red' => Color::hex('#ff5e5b'),
+                'purple' => Color::hex('#9d4edd'),
             ])
             ->sidebarCollapsibleOnDesktop()
             ->maxContentWidth(Width::Full)
             ->unsavedChangesAlerts()
             ->sidebarWidth('15rem')
-            ->brandLogo(asset('images/logo-dark.avif'))
-            ->darkModeBrandLogo(asset('images/logo-light.avif'))
+            ->brandLogo(fn () => $this->brandLogoUrl())
+            ->darkModeBrandLogo(fn () => $this->darkModeBrandLogoUrl())
             ->brandLogoHeight(fn () => auth()->check() ? '3rem' : '2rem')
-            ->favicon(asset('favicon.ico'))
+            ->favicon(fn () => $this->faviconUrl())
             ->defaultThemeMode(ThemeMode::System)
 
             ->plugins([
-                FilamentShieldPlugin::make(),
+                FilamentShieldPlugin::make()
+                    ->navigationGroup(fn () => __('panel.navigation_groups.configuration')),
                 BreezyCore::make()
                     ->enableTwoFactorAuthentication()
                     ->myProfile(
                         hasAvatars: true,
                     )
                     ->enableBrowserSessions(condition: true),
+                AuthUIEnhancerPlugin::make()
+                    ->showEmptyPanelOnMobile(false)
+                    ->formPanelPosition('right')
+                    ->formPanelWidth('40%')
+                    ->emptyPanelBackgroundImageUrl($this->authPageBgImageUrl()),
+                FilamentApexChartsPlugin::make(),
             ])
 
+            ->navigationGroups([
+                NavigationGroup::make(fn () => __('panel.navigation_groups.crm')),
+                NavigationGroup::make(fn () => __('panel.navigation_groups.operations')),
+                NavigationGroup::make(fn () => __('panel.navigation_groups.administration')),
+                NavigationGroup::make(fn () => __('panel.navigation_groups.configuration')),
+            ])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')
             ->pages([
@@ -90,5 +115,47 @@ class AdminPanelProvider extends PanelProvider
             ->authMiddleware([
                 Authenticate::class,
             ]);
+    }
+
+    private function settings(): GeneralSettings
+    {
+        return app(GeneralSettings::class);
+    }
+
+    private function brandLogoUrl(): string
+    {
+        $path = $this->settingValue('filament_brand_logo');
+
+        return $path ? asset($path) : asset('images/logo-dark.avif');
+    }
+
+    private function darkModeBrandLogoUrl(): string
+    {
+        $path = $this->settingValue('filament_dark_mode_brand_logo');
+
+        return $path ? asset($path) : asset('images/logo-light.avif');
+    }
+
+    private function faviconUrl(): string
+    {
+        $path = $this->settingValue('filament_favicon');
+
+        return $path ? asset($path) : asset('favicon.ico');
+    }
+
+    private function authPageBgImageUrl(): string
+    {
+        $path = $this->settingValue('filament_auth_page_bg_image');
+
+        return $path ? asset($path) : asset('images/auth.jpg');
+    }
+
+    private function settingValue(string $property): ?string
+    {
+        try {
+            return $this->settings()->{$property};
+        } catch (MissingSettings|QueryException) {
+            return null;
+        }
     }
 }

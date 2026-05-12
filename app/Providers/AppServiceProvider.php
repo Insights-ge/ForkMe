@@ -2,6 +2,9 @@
 
 namespace App\Providers;
 
+use App\Enums\Locale;
+use App\Policies\LanguageLinePolicy;
+use App\Support\Locales;
 use BezhanSalleh\LanguageSwitch\LanguageSwitch;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
@@ -9,7 +12,10 @@ use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
+use Spatie\TranslationLoader\LanguageLine;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -26,22 +32,16 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        Gate::policy(LanguageLine::class, LanguageLinePolicy::class);
+
+        Model::shouldBeStrict(! app()->isProduction());
+
         LanguageSwitch::configureUsing(function (LanguageSwitch $switch) {
+            $enabled = Locales::enabled();
 
-            /** @var array<string, array<string, string>> $supportedLocales */
-            $supportedLocales = config('laravellocalization.supportedLocales', ['en' => []]);
-
-            $locales = array_keys($supportedLocales);
-
-            $labels = [];
-            foreach ($supportedLocales as $code => $locale) {
-                $labels[$code] = $locale['native'] ?? $locale['name'] ?? $code;
-            }
-
-            $flags = [];
-            foreach ($locales as $code) {
-                $flags[$code] = asset("images/langs/{$code}.webp");
-            }
+            $locales = array_map(fn (Locale $l) => $l->value, $enabled);
+            $labels = array_combine($locales, array_map(fn (Locale $l) => $l->native(), $enabled));
+            $flags = array_combine($locales, array_map(fn (Locale $l) => $l->flag(), $enabled));
 
             $switch
                 ->locales($locales)
@@ -49,7 +49,8 @@ class AppServiceProvider extends ServiceProvider
                 ->flags($flags)
                 ->flagsOnly()
                 ->circular()
-                ->visible(outsidePanels: true);
+                ->visible(outsidePanels: true)
+                ->renderHook('panels::user-menu.before');
         });
 
         // Very USEFULFRIENDLY

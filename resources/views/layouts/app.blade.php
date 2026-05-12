@@ -1,5 +1,14 @@
+@php
+    use App\Settings\GeneralSettings;
+    use App\Support\Locales;
+
+    /** @var GeneralSettings $settings */
+    $settings = app(GeneralSettings::class);
+    $enabledLocales = Locales::enabled();
+    $currentLocale  = app()->getLocale();
+@endphp
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="scroll-smooth" dir="ltr"
+<html lang="{{ str_replace('_', '-', $currentLocale) }}" class="scroll-smooth" dir="ltr"
     prefix="og: http://ogp.me/ns#">
 
 <head>
@@ -24,25 +33,31 @@
     <header
         class="fixed top-0 left-0 right-0 z-50 transition-all duration-300 border-b border-white/5 bg-dark/80 backdrop-blur-md">
         <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-            <a href="/" class="flex items-center gap-2 group">
-                <img src="{{ asset(config('seo.branding.logo_header')) }}" alt="{{ config('app.name') }}"
-                    class="h-10 w-auto">
+            <a href="{{ route('home', ['locale' => $currentLocale]) }}" class="flex items-center gap-2 group">
+                @if ($settings->branding_logo_header)
+                    <img src="{{ asset($settings->branding_logo_header) }}" alt="{{ $settings->site_name }}"
+                        class="h-10 w-auto">
+                @else
+                    <span class="text-lg font-bold">{{ $settings->site_name }}</span>
+                @endif
             </a>
 
             <nav class="hidden md:flex items-center gap-8 text-sm font-medium text-white/60">
             </nav>
 
             <div class="flex items-center gap-4">
-                <div
-                    class="flex items-center gap-2 me-4 bg-white/5 p-1 rounded-full group cursor-pointer transition-all hover:bg-white/10">
-                    @foreach (LaravelLocalization::getSupportedLocales() as $localeCode => $properties)
-                        <a rel="alternate" hreflang="{{ $localeCode }}"
-                            href="{{ LaravelLocalization::getLocalizedURL($localeCode, null, [], true) }}"
-                            class="px-2 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider transition-all {{ App::getLocale() === $localeCode ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'text-white/40 hover:text-white' }}">
-                            {{ $localeCode }}
-                        </a>
-                    @endforeach
-                </div>
+                @if (count($enabledLocales) > 1)
+                    <div
+                        class="flex items-center gap-2 me-4 bg-white/5 p-1 rounded-full group cursor-pointer transition-all hover:bg-white/10">
+                        @foreach ($enabledLocales as $locale)
+                            <a rel="alternate" hreflang="{{ $locale->value }}"
+                                href="{{ route('home', ['locale' => $locale->value]) }}"
+                                class="px-2 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider transition-all {{ $currentLocale === $locale->value ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'text-white/40 hover:text-white' }}">
+                                {{ $locale->value }}
+                            </a>
+                        @endforeach
+                    </div>
+                @endif
 
                 <div class="flex items-center gap-4">
                     <a href="{{ filament()->getPanel('admin')->getUrl() }}"
@@ -61,9 +76,11 @@
     <footer class="py-12 border-t border-white/5 bg-dark mt-auto">
         <div class="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-8">
             <div class="flex items-center gap-4">
-                <a href="/" class="opacity-50 hover:opacity-100 transition-opacity">
-                    <img src="{{ asset(config('seo.branding.logo_footer')) }}" alt="{{ config('app.name') }}"
-                        class="size-8">
+                <a href="{{ route('home', ['locale' => $currentLocale]) }}" class="opacity-50 hover:opacity-100 transition-opacity">
+                    @if ($settings->branding_logo_footer)
+                        <img src="{{ asset($settings->branding_logo_footer) }}" alt="{{ $settings->site_name }}"
+                            class="size-8">
+                    @endif
                 </a>
                 <span
                     class="text-sm font-semibold text-white/30 uppercase tracking-widest">{{ __('welcome.all_rights_reserved') }}</span>

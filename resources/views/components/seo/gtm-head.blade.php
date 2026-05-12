@@ -1,4 +1,8 @@
-@if ($gtmId = config('seo.gtm_id'))
+@php
+    $gtmId = app(\App\Settings\GeneralSettings::class)->gtm_id;
+@endphp
+
+@if ($gtmId)
     <script>
         (function(w, d, s, l, i) {
             w[l] = w[l] || [];

@@ -35,5 +35,6 @@ class DatabaseSeeder extends Seeder
             '--panel' => 'admin',
         ]);
 
+        $this->call(GeneralSettingsSeeder::class);
     }
 }
