@@ -2,7 +2,7 @@
 
 namespace App\Filament\Pages\Auth;
 
-use Filament\Auth\Pages\Login as BaseLogin;
+use DiogoGPinto\AuthUIEnhancer\Pages\Auth\AuthUiEnhancerLogin as BaseLogin;
 
 class Login extends BaseLogin
 {
