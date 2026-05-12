@@ -31,7 +31,8 @@ class UserForm
                     ->relationship('roles', 'name')
                     ->multiple()
                     ->preload()
-                    ->searchable(),
+                    ->searchable()
+                    ->noOptionsMessage(__('panel.users.form.roles_no_options')),
             ]);
     }
 }
