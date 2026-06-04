@@ -1,9 +1,9 @@
 {
     "mcpServers": {
         "laravel-boost": {
-            "command": "/usr/bin/php8.4",
+            "command": "php8.4",
             "args": [
-                "/home/stealy/projects/updt/ForkMe/artisan",
+                "/home/ubuntu/projects/ForkMe/artisan",
                 "boost:mcp"
             ],
             "env": {}
