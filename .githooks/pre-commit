@@ -1,0 +1,34 @@
+#!/bin/bash
+
+set -e
+
+STAGED_PHP=$(git diff --cached --name-only --diff-filter=ACM | grep '\.php$' || true)
+STAGED_FILAMENT=$(echo "$STAGED_PHP" | grep '^app/Filament' || true)
+
+# Fix and re-stage Filament files
+if [ -n "$STAGED_FILAMENT" ]; then
+    echo "Running FilaCheck on staged Filament files..."
+    while IFS= read -r file; do
+        vendor/bin/filacheck "$file" --fix
+        git add "$file"
+    done <<< "$STAGED_FILAMENT"
+fi
+
+# Fix and re-stage all staged PHP files
+if [ -n "$STAGED_PHP" ]; then
+    echo "Running Duster fix on staged PHP files..."
+    echo "$STAGED_PHP" | xargs vendor/bin/duster fix
+    echo "$STAGED_PHP" | xargs git add
+fi
+
+echo "Running Duster lint..."
+vendor/bin/duster lint
+
+echo "Running FilaCheck..."
+vendor/bin/filacheck
+
+echo "Running PHPStan level 10..."
+vendor/bin/phpstan analyse --level=10
+
+echo "Running tests..."
+php artisan test --compact
