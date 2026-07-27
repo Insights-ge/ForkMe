@@ -208,7 +208,7 @@ php artisan migrate:fresh --seed
 🔑 **Default Admin Credentials**:
 - **URL**: `https://127.0.0.1:8000/admin`
 - **Email**: `demo@demo.com`
-- **Password**: `password`
+- **Password**: `demo`
 
 ### 4. Start Development Server
 
