@@ -11,16 +11,16 @@
 <h1 align="center">ForkMe — Production-Ready Laravel Starter Kit</h1>
 
 <p align="center">
-  <strong>An opinionated, feature-packed Laravel 12 & Filament 5 boilerplate crafted by <a href="https://insights.ge" target="_blank" rel="noopener noreferrer">Insights</a>.</strong>
+  <strong>An opinionated, feature-packed Laravel 13 & Filament 5 boilerplate crafted by <a href="https://insights.ge" target="_blank" rel="noopener noreferrer">Insights</a>.</strong>
 </p>
 
 <p align="center">
   <a href="https://insights.ge"><img src="https://img.shields.io/badge/Website-insights.ge-007ACC?style=for-the-badge&logo=google-chrome&logoColor=white" alt="Insights Website"></a>
-  <a href="https://laravel.com"><img src="https://img.shields.io/badge/Laravel-12.x-FF2D20?style=for-the-badge&logo=laravel&logoColor=white" alt="Laravel 12"></a>
+  <a href="https://laravel.com"><img src="https://img.shields.io/badge/Laravel-13.x-FF2D20?style=for-the-badge&logo=laravel&logoColor=white" alt="Laravel 13"></a>
   <a href="https://filamentphp.com"><img src="https://img.shields.io/badge/Filament-v5.x-F59E0B?style=for-the-badge&logo=filament&logoColor=white" alt="Filament 5"></a>
-  <a href="https://php.net"><img src="https://img.shields.io/badge/PHP-8.2%2B%20%7C%208.4-777BB4?style=for-the-badge&logo=php&logoColor=white" alt="PHP 8.2+"></a>
+  <a href="https://php.net"><img src="https://img.shields.io/badge/PHP-8.3%2B%20%7C%208.4-777BB4?style=for-the-badge&logo=php&logoColor=white" alt="PHP 8.3+"></a>
   <a href="https://tailwindcss.com"><img src="https://img.shields.io/badge/Tailwind_CSS-v4.x-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white" alt="Tailwind CSS v4"></a>
-  <a href="https://pestphp.com"><img src="https://img.shields.io/badge/Pest-v3.x-B026FF?style=for-the-badge&logo=pest&logoColor=white" alt="Pest 3"></a>
+  <a href="https://pestphp.com"><img src="https://img.shields.io/badge/Pest-v4.x-B026FF?style=for-the-badge&logo=pest&logoColor=white" alt="Pest 4"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge" alt="License MIT"></a>
 </p>
 
@@ -117,7 +117,7 @@ Here is the complete list of curated packages pre-installed and configured in **
 
 | Package | Version | Description |
 | :--- | :--- | :--- |
-| [`laravel/framework`](https://github.com/laravel/framework) | `^12.0` | The robust Laravel 12 PHP framework |
+| [`laravel/framework`](https://github.com/laravel/framework) | `^13.0` | The robust Laravel 13 PHP framework |
 | [`filament/filament`](https://github.com/filamentphp/filament) | `^5.0` | Next-generation admin panel, form, table, and widget builder |
 | [`tailwindcss`](https://tailwindcss.com) | `^4.2` | Utility-first CSS framework (v4 engine) |
 | [`vite`](https://vitejs.dev) | `^7.0` | Next generation frontend tooling & asset bundler |
@@ -157,7 +157,7 @@ Here is the complete list of curated packages pre-installed and configured in **
 
 | Package | Version | Purpose |
 | :--- | :--- | :--- |
-| [`pestphp/pest`](https://github.com/pestphp/pest) | `^3.8` | Elegant PHP testing framework with Laravel plugin |
+| [`pestphp/pest`](https://github.com/pestphp/pest) | `^4.0` | Elegant PHP testing framework with Laravel plugin |
 | [`larastan/larastan`](https://github.com/larastan/larastan) | `^3.0` | Static analysis wrapper around PHPStan for Laravel |
 | [`tightenco/duster`](https://github.com/tightenco/duster) | `^3.4` | Unified linter & code fixer (TLint, PHP_CodeSniffer, Pint) |
 | [`laravel/pint`](https://github.com/laravel/pint) | `^1.24` | Opinionated PHP code style fixer built on PHP-CS-Fixer |
@@ -173,7 +173,7 @@ Here is the complete list of curated packages pre-installed and configured in **
 
 ### 1. Requirements
 
-- **PHP**: `^8.2` or `8.4`
+- **PHP**: `^8.3` or `8.4`
 - **Composer**: `^2.2`
 - **Node.js**: `^18.x` or `^20.x`
 - **Database**: MySQL / PostgreSQL / SQLite
@@ -183,7 +183,7 @@ Here is the complete list of curated packages pre-installed and configured in **
 Clone the repository and run the automated setup command:
 
 ```bash
-git clone https://github.com/moodloi/ForkMe.git
+git clone https://github.com/Insights-ge/ForkMe.git
 cd ForkMe
 
 # Automated initial setup script
