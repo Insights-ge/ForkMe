@@ -29,4 +29,6 @@ settings.json
 AGENTS.md
 /.github
 /metronic_reference
-
+/.claude
+/.codex
+/.mcp.json
