@@ -6,8 +6,6 @@ use App\Enums\Locale;
 use App\Policies\LanguageLinePolicy;
 use App\Support\Locales;
 use BezhanSalleh\LanguageSwitch\Enums\ItemStyle;
-use BezhanSalleh\LanguageSwitch\Enums\Placement;
-use BezhanSalleh\LanguageSwitch\Enums\PlacementMode;
 use BezhanSalleh\LanguageSwitch\LanguageSwitch;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
@@ -50,10 +48,9 @@ class AppServiceProvider extends ServiceProvider
                 ->locales($locales)
                 ->labels($labels)
                 ->flags($flags)
-                ->itemStyle(ItemStyle::FlagOnly)
                 ->circular()
+                ->itemStyle(ItemStyle::FlagWithLabel)
                 ->visible(outsidePanels: true)
-                ->outsidePanelPlacement(Placement::TopEnd, PlacementMode::Pinned)
                 ->renderHook('panels::user-menu.before');
         });
 
