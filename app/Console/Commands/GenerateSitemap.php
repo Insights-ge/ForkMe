@@ -125,7 +125,7 @@ final class GenerateSitemap extends Command
      */
     private function generateRobotsTxt(array $locales): void
     {
-        $appUrl = rtrim(is_string(config('app.url')) ? config('app.url') : '', '/');
+        $appUrl = $this->appUrl();
 
         $lines = [
             'User-agent: *',
@@ -149,35 +149,42 @@ final class GenerateSitemap extends Command
 
     private function generateLlmsTxt(): void
     {
-        $siteName = $this->settings->site_name ?? 'DXF2';
-        $tagline = $this->settings->site_tagline ?? 'Precision Laser Cutting Service';
         $defaultLocale = $this->settings->default_locale;
 
-        $lines = [
-            "# {$siteName}",
-            '',
-            "> {$tagline}",
-            '',
-            '## About',
-            '',
-            "{$siteName} is an online laser and CNC cutting order platform. Users upload DXF files, select material and thickness, receive instant pricing, and complete checkout. A Filament-powered admin panel manages materials, orders, and content.",
-            '',
-            '## Pages',
-            '',
-        ];
+        /** @var list<array{label: string, url: string, notes: string}> $pages */
+        $pages = [];
 
-        $staticPages = [
-            '' => 'Home — landing page with hero, materials, testimonials, FAQ, and contact.',
-        ];
-
-        foreach ($staticPages as $path => $label) {
-            $url = $this->getLocalizedUrl($defaultLocale, $path);
-            $lines[] = "- [{$label}]({$url})";
+        foreach ($this->llmsPages() as $path => $page) {
+            $pages[] = [
+                'label' => $page['label'],
+                'url' => $this->getLocalizedUrl($defaultLocale, $path),
+                'notes' => $page['notes'],
+            ];
         }
 
-        file_put_contents(public_path('llms.txt'), implode("\n", $lines) . "\n");
+        $contents = view('seo.llms', [
+            'siteName' => $this->siteName(),
+            'tagline' => $this->settings->site_tagline ?? '',
+            'about' => $this->settings->default_meta_description ?? '',
+            'techStack' => $this->techStack(),
+            'pages' => $pages,
+        ])->render();
+
+        file_put_contents(public_path('llms.txt'), $this->normalize($contents));
 
         $this->info('Generated llms.txt');
+    }
+
+    /**
+     * Pages listed in llms.txt, keyed by locale-relative path.
+     *
+     * @return array<string, array{label: string, notes: string}>
+     */
+    private function llmsPages(): array
+    {
+        return [
+            '' => ['label' => 'Home', 'notes' => 'Landing page.'],
+        ];
     }
 
     /**
@@ -185,26 +192,15 @@ final class GenerateSitemap extends Command
      */
     private function generateHumansTxt(array $supportedLocales): void
     {
-        $languageList = implode(', ', array_map(fn (Locale $l) => $l->native(), $supportedLocales));
+        $contents = view('seo.humans', [
+            'siteName' => $this->siteName(),
+            'siteUrl' => $this->appUrl(),
+            'contactEmail' => $this->settings->contact_email,
+            'lastUpdate' => now()->year,
+            'languages' => implode(', ', array_map(fn (Locale $l) => $l->native(), $supportedLocales)),
+        ])->render();
 
-        $appUrl = rtrim(is_string(config('app.url')) ? config('app.url') : '', '/');
-
-        $lines = [
-            '/* TEAM */',
-            '  Name: ' . ($this->settings->site_name ?? 'DXF2'),
-            '  Site: ' . $appUrl,
-            '  Contact: ' . ($this->settings->contact_email ?? ''),
-            '',
-            '/* SITE */',
-            '  Last update: ' . now()->year,
-            '  Language: ' . $languageList,
-            '  Standards: HTML5, CSS3, Laravel, TailwindCSS',
-            '  Components: Livewire, Alpine.js',
-            '  Doctype: HTML5',
-            '',
-        ];
-
-        file_put_contents(public_path('humans.txt'), implode("\n", $lines));
+        file_put_contents(public_path('humans.txt'), $this->normalize($contents));
 
         $this->info('Generated humans.txt');
     }
@@ -214,7 +210,7 @@ final class GenerateSitemap extends Command
      */
     private function generateSecurityTxt(array $locales): void
     {
-        $appUrl = rtrim(is_string(config('app.url')) ? config('app.url') : '', '/');
+        $appUrl = $this->appUrl();
         $contact = $this->settings->contact_email ?? '';
         $preferredLanguages = implode(', ', $locales);
         $expires = now()->addYear()->toIso8601String();
@@ -235,10 +231,191 @@ final class GenerateSitemap extends Command
         $this->info('Generated security.txt');
     }
 
-    private function getLocalizedUrl(string $locale, string $path): string
+    /**
+     * Tech stack lines for llms.txt, grouped by section.
+     *
+     * Versions are read from composer.json and package.json; entries whose package
+     * is not installed are dropped, so the list cannot drift from the manifests.
+     *
+     * @return array<string, list<string>>
+     */
+    private function techStack(): array
+    {
+        $versions = array_merge(
+            $this->manifestVersions(base_path('composer.json'), ['require', 'require-dev']),
+            $this->manifestVersions(base_path('package.json'), ['dependencies', 'devDependencies']),
+        );
+
+        $stack = [];
+
+        foreach ($this->stackSections() as $section => $entries) {
+            $lines = [];
+
+            foreach ($entries as $package => $entry) {
+                if (! array_key_exists($package, $versions)) {
+                    continue;
+                }
+
+                $version = $package === 'php'
+                    ? $this->minorVersion($versions[$package])
+                    : $this->majorVersion($versions[$package]);
+
+                $label = trim("{$entry['name']} {$version}");
+                $notes = $entry['notes'] !== '' ? " ({$entry['notes']})" : '';
+
+                $lines[] = "**{$entry['role']}**: {$label}{$notes}";
+            }
+
+            if ($lines !== []) {
+                $stack[$section] = $lines;
+            }
+        }
+
+        return $stack;
+    }
+
+    /**
+     * Curated stack entries, keyed by section then by composer/npm package name.
+     *
+     * @return array<string, array<string, array{role: string, name: string, notes: string}>>
+     */
+    private function stackSections(): array
+    {
+        return [
+            'Backend' => [
+                'php' => ['role' => 'PHP', 'name' => '', 'notes' => ''],
+                'laravel/framework' => ['role' => 'Framework', 'name' => 'Laravel', 'notes' => ''],
+                'filament/filament' => ['role' => 'Admin Panel', 'name' => 'Filament', 'notes' => ''],
+                'bezhansalleh/filament-shield' => ['role' => 'Roles & Permissions UI', 'name' => 'Filament Shield', 'notes' => ''],
+                'spatie/laravel-permission' => ['role' => 'Authorization', 'name' => 'Spatie Laravel Permission', 'notes' => ''],
+                'spatie/laravel-medialibrary' => ['role' => 'Media', 'name' => 'Spatie Media Library', 'notes' => ''],
+                'spatie/laravel-translatable' => ['role' => 'Translatable Models', 'name' => 'Spatie Laravel Translatable', 'notes' => ''],
+                'filament/spatie-laravel-settings-plugin' => ['role' => 'Settings', 'name' => 'Spatie Laravel Settings', 'notes' => 'Filament plugin'],
+                'spatie/laravel-sitemap' => ['role' => 'Sitemap', 'name' => 'Spatie Laravel Sitemap', 'notes' => ''],
+                'spatie/schema-org' => ['role' => 'Structured Data', 'name' => 'Spatie Schema.org', 'notes' => ''],
+                'stevebauman/purify' => ['role' => 'HTML Sanitizing', 'name' => 'Purify', 'notes' => ''],
+                'laravel-lang/common' => ['role' => 'Translations', 'name' => 'Laravel Lang', 'notes' => ''],
+                'bezhansalleh/filament-language-switch' => ['role' => 'Language Switcher', 'name' => 'Filament Language Switch', 'notes' => ''],
+            ],
+            'Frontend' => [
+                'vite' => ['role' => 'Build Tool', 'name' => 'Vite', 'notes' => ''],
+                'tailwindcss' => ['role' => 'CSS', 'name' => 'Tailwind CSS', 'notes' => ''],
+            ],
+            'Testing' => [
+                'pestphp/pest' => ['role' => 'Framework', 'name' => 'Pest', 'notes' => 'with Laravel plugin'],
+                'phpunit/phpunit' => ['role' => 'Test Runner', 'name' => 'PHPUnit', 'notes' => ''],
+            ],
+            'Dev Tools' => [
+                'larastan/larastan' => ['role' => 'Static Analysis', 'name' => 'Larastan', 'notes' => ''],
+                'beyondcode/laravel-query-detector' => ['role' => 'Query Detector', 'name' => 'Laravel Query Detector', 'notes' => 'N+1 detection'],
+                'laravel/pail' => ['role' => 'Log Viewer', 'name' => 'Laravel Pail', 'notes' => ''],
+                'tightenco/duster' => ['role' => 'Code Style', 'name' => 'Duster', 'notes' => 'wraps Laravel Pint'],
+                'laraveldaily/filacheck' => ['role' => 'Filament Linter', 'name' => 'Filacheck', 'notes' => ''],
+                'laravel/boost' => ['role' => 'AI Tooling', 'name' => 'Laravel Boost', 'notes' => ''],
+                'laravel/tinker' => ['role' => 'REPL', 'name' => 'Laravel Tinker', 'notes' => ''],
+            ],
+        ];
+    }
+
+    /**
+     * Read package => version-constraint pairs out of a JSON manifest.
+     *
+     * @param  list<string>  $keys
+     * @return array<string, string>
+     */
+    private function manifestVersions(string $path, array $keys): array
+    {
+        if (! is_file($path)) {
+            return [];
+        }
+
+        $contents = file_get_contents($path);
+
+        if ($contents === false) {
+            return [];
+        }
+
+        $manifest = json_decode($contents, true);
+
+        if (! is_array($manifest)) {
+            return [];
+        }
+
+        $versions = [];
+
+        foreach ($keys as $key) {
+            if (! isset($manifest[$key]) || ! is_array($manifest[$key])) {
+                continue;
+            }
+
+            foreach ($manifest[$key] as $package => $constraint) {
+                if (is_string($package) && is_string($constraint)) {
+                    $versions[$package] = $constraint;
+                }
+            }
+        }
+
+        return $versions;
+    }
+
+    /**
+     * Major version from a constraint such as `^13.0`, or an empty string for `*`.
+     */
+    private function majorVersion(string $constraint): string
+    {
+        preg_match('/(\d+)/', $constraint, $matches);
+
+        return $matches[1] ?? '';
+    }
+
+    /**
+     * Major and minor version from a constraint such as `^8.4`.
+     */
+    private function minorVersion(string $constraint): string
+    {
+        preg_match('/(\d+)(?:\.(\d+))?/', $constraint, $matches);
+
+        if (! isset($matches[1])) {
+            return '';
+        }
+
+        return isset($matches[2]) ? "{$matches[1]}.{$matches[2]}" : $matches[1];
+    }
+
+    /**
+     * Collapse blank-line runs left by Blade directives and end with a single newline.
+     */
+    private function normalize(string $contents): string
+    {
+        $collapsed = preg_replace("/\n{3,}/", "\n\n", trim($contents));
+
+        return ($collapsed ?? '') . "\n";
+    }
+
+    private function appUrl(): string
     {
         $appUrl = config('app.url');
-        $baseUrl = rtrim(is_string($appUrl) ? $appUrl : '', '/');
+
+        return rtrim(is_string($appUrl) ? $appUrl : '', '/');
+    }
+
+    /**
+     * Site name from settings, falling back to the configured application name.
+     */
+    private function siteName(): string
+    {
+        if ($this->settings->site_name !== '') {
+            return $this->settings->site_name;
+        }
+
+        $appName = config('app.name');
+
+        return is_string($appName) && $appName !== '' ? $appName : 'Laravel';
+    }
+
+    private function getLocalizedUrl(string $locale, string $path): string
+    {
+        $baseUrl = $this->appUrl();
 
         $path = $path !== '' ? ltrim($path, '/') : '';
 
