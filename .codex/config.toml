@@ -1,7 +1,0 @@
-[mcp_servers.laravel-boost]
-command = "php8.4"
-args = ["/home/ubuntu/projects/ForkMe/artisan", "boost:mcp"]
-cwd = "/home/ubuntu/projects/ForkMe"
-
-[mcp_servers.laravel-boost.tools.search-docs]
-approval_mode = "approve"
