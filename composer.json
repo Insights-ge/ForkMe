@@ -20,7 +20,7 @@
         "leandrocfe/filament-apex-charts": "^5.0",
         "shuvroroy/filament-spatie-laravel-backup": "^4.0",
         "spatie/laravel-medialibrary": "^11.21",
-        "spatie/laravel-permission": "^6.24",
+        "spatie/laravel-permission": "^8.3",
         "spatie/laravel-sitemap": "^8.2",
         "spatie/laravel-translatable": "^6.11",
         "spatie/laravel-translation-loader": "^2.8",
