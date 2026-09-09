@@ -24,7 +24,8 @@ return [
         'form' => [
             'name' => 'Name',
             'email' => 'Email',
-            'email_verified_at' => 'Email verified at',
+            'email_verified' => 'Mark email as verified',
+            'email_verified_help' => 'Only enable this if you have confirmed ownership of this email address.',
             'password' => 'Password',
             'role' => 'Role',
             'roles_no_options' => 'No roles available',
