@@ -61,7 +61,7 @@ class AdminPanelProvider extends PanelProvider
                 'red' => Color::hex('#ff5e5b'),
                 'purple' => Color::hex('#9d4edd'),
             ])
-            ->sidebarCollapsibleOnDesktop()
+            //->sidebarCollapsibleOnDesktop()
             ->topbar(false)
             ->maxContentWidth(Width::Full)
             ->unsavedChangesAlerts()

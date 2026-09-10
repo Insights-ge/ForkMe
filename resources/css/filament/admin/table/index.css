@@ -11,6 +11,15 @@
             var(--tw-shadow);
     }
 
+    .fi-ta-ctn .fi-ta-header-toolbar {
+        flex-direction: row-reverse;
+    }
+
+    .fi-ta-ctn .fi-ta-header-toolbar > :nth-child(2) {
+        margin-inline-start: 0;
+        margin-inline-end: auto;
+    }
+
     .fi-ta-ctn .fi-ta-header .fi-ta-header-heading {
         font-family: var(--insights-theme-font-display);
         --tw-numeric-figure: lining-nums;
