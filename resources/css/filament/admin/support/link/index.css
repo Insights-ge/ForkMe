@@ -1,7 +1,5 @@
 @layer insights-theme {
-
-    .fi-tenant-menu-trigger,
-    .fi-theme-switcher-btn {
+    .fi-link .fi-link-badge-ctn {
         border-radius: 2147483647px;
     }
 }

@@ -5,6 +5,7 @@ namespace App\Providers\Filament;
 use App\Filament\Pages\Auth\Login;
 use App\Http\Middleware\SyncLocaleFromSession;
 use App\Settings\GeneralSettings;
+use App\Support\AdminTheme;
 use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
 use DiogoGPinto\AuthUIEnhancer\AuthUIEnhancerPlugin;
 use Filament\Enums\ThemeMode;
@@ -47,11 +48,12 @@ class AdminPanelProvider extends PanelProvider
             ->emailVerification()
             ->databaseNotifications()
 
-            ->font('Noto Sans Georgian')
+            ->font('Albert Sans')
+            ->serifFont('Lora')
 
             ->viteTheme('resources/css/filament/admin/theme.css')
             ->colors([
-                'primary' => Color::hex('#6f69c1'),
+                ...AdminTheme::COLORS,
                 'pink' => Color::hex('#ff006e'),
                 'blue' => Color::hex('#00b4d8'),
                 'green' => Color::hex('#38b000'),
@@ -60,9 +62,10 @@ class AdminPanelProvider extends PanelProvider
                 'purple' => Color::hex('#9d4edd'),
             ])
             ->sidebarCollapsibleOnDesktop()
+            ->topbar(false)
             ->maxContentWidth(Width::Full)
             ->unsavedChangesAlerts()
-            ->sidebarWidth('15rem')
+            ->sidebarWidth('20rem')
             ->brandLogo(fn () => $this->brandLogoUrl())
             ->darkModeBrandLogo(fn () => $this->darkModeBrandLogoUrl())
             ->brandLogoHeight(fn () => auth()->check() ? '3rem' : '2rem')

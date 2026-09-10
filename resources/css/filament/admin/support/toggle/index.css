@@ -1,19 +1,16 @@
 @layer insights-theme {
-    :scope .fi-dropdown-panel {
-        --tw-shadow: var(--insights-theme-shadow-floating);
+    .fi-toggle {
+        --tw-ease: var(--ease-out);
+        transition-timing-function: var(--ease-out);
+    }
+
+    .fi-toggle> :first-child {
+        --tw-shadow: var(--insights-theme-shadow-raised);
         box-shadow:
             var(--tw-inset-shadow), var(--tw-inset-ring-shadow),
             var(--tw-ring-offset-shadow), var(--tw-ring-shadow),
             var(--tw-shadow);
         --tw-ease: var(--ease-out);
         transition-timing-function: var(--ease-out);
-    }
-
-    :scope .fi-dropdown-panel.fi-opacity-0 {
-        scale: 0.98;
-    }
-
-    .fi-dropdown-list-item {
-        border-radius: max(0px, calc(var(--insights-theme-radius-field) - 4px));
     }
 }
