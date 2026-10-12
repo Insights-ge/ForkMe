@@ -83,13 +83,25 @@ test('a door variant can be edited', function () {
     expect($variant->refresh()->product_code)->toBe('პნლა000001');
 });
 
-test('the edit form shows a selected component whose type differs from the field', function () {
+test('component fields only offer components of their own type', function () {
     $topRail = Component::factory()->ofType(ComponentType::TopRail)->create();
-    $variant = DoorVariant::factory()->create(['partition_component_id' => $topRail->id]);
+    $partition = Component::factory()->ofType(ComponentType::Partition)->create(['unique_code' => $topRail->unique_code]);
+    $variant = DoorVariant::factory()->create(['partition_component_id' => $partition->id]);
 
     Livewire::test(EditDoorVariant::class, ['record' => $variant->getKey()])
         ->assertFormFieldExists(
             'partition_component_id',
-            fn (Select $field): bool => array_key_exists($topRail->id, $field->getOptions()),
+            fn (Select $field): bool => array_key_exists($partition->id, $field->getOptions())
+                && ! array_key_exists($topRail->id, $field->getOptions()),
         );
+});
+
+test('a door variant cannot be saved with a component of another type', function () {
+    $variant = DoorVariant::factory()->create();
+    $topRail = Component::factory()->ofType(ComponentType::TopRail)->create();
+
+    Livewire::test(EditDoorVariant::class, ['record' => $variant->getKey()])
+        ->fillForm(['partition_component_id' => $topRail->id])
+        ->call('save')
+        ->assertHasFormErrors(['partition_component_id']);
 });
