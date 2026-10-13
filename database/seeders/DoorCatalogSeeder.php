@@ -110,9 +110,8 @@ class DoorCatalogSeeder extends Seeder
         $color = $data["{$prefix}_color"] ?? '';
 
         return Component::query()->firstOrCreate(
-            ['unique_code' => $data["{$prefix}_unique_code"]],
+            ['unique_code' => $data["{$prefix}_unique_code"], 'type' => $type],
             [
-                'type' => $type,
                 'code' => $data["{$prefix}_code"],
                 'description' => $data["{$prefix}_description"],
                 'color' => $color !== '' ? $this->mapColor($color) : null,

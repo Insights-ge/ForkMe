@@ -4,11 +4,14 @@ namespace App\Filament\Resources\Components\Schemas;
 
 use App\Enums\ComponentType;
 use App\Enums\DoorColor;
+use BackedEnum;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 use Filament\Support\Enums\Operation;
+use Illuminate\Validation\Rules\Unique;
 
 class ComponentForm
 {
@@ -39,8 +42,16 @@ class ComponentForm
                 TextInput::make('unique_code')
                     ->label(__('components.form.unique_code'))
                     ->maxLength(255)
-                    ->unique(ignoreRecord: true)
+                    ->unique(ignoreRecord: true, modifyRuleUsing: fn (Unique $rule, Get $get): Unique => self::scopeToType($rule, $get->enum('type', ComponentType::class)))
                     ->required(),
             ]);
+    }
+
+    /**
+     * The same unique code may exist once per component type (e.g. a profile used as top rail and as partition).
+     */
+    private static function scopeToType(Unique $rule, ?BackedEnum $type): Unique
+    {
+        return $rule->where('type', $type?->value);
     }
 }

@@ -36,22 +36,19 @@ class ComponentsSection
     {
         return Select::make($foreignKey)
             ->label(__("door_variants.form.{$labelKey}"))
-            ->options(fn (int|string|null $state): array => self::componentOptions($components, $type, filled($state) ? (int) $state : null))
+            ->options(self::componentOptions($components, $type))
             ->searchable()
             ->required($required);
     }
 
     /**
-     * Components of the given type, plus the currently selected component even when its type differs
-     * (e.g. a top rail profile that is also used as a partition).
-     *
      * @param  Collection<int, Component>  $components
      * @return array<int, string>
      */
-    private static function componentOptions(Collection $components, ComponentType $type, ?int $selectedId): array
+    private static function componentOptions(Collection $components, ComponentType $type): array
     {
         return $components
-            ->filter(fn (Component $component): bool => $component->type === $type || $component->id === $selectedId)
+            ->filter(fn (Component $component): bool => $component->type === $type)
             ->mapWithKeys(fn (Component $component): array => [$component->id => "{$component->code} — {$component->description}"])
             ->all();
     }

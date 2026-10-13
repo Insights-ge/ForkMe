@@ -43,6 +43,36 @@ test('a component can be created', function () {
     $this->assertDatabaseHas('components', ['unique_code' => '000099999']);
 });
 
+test('a component can reuse a unique code that exists under another type', function () {
+    $topRail = Component::factory()->ofType(ComponentType::TopRail)->create();
+
+    Livewire::test(CreateComponent::class)
+        ->fillForm([
+            'type' => ComponentType::Partition->value,
+            'code' => $topRail->code,
+            'description' => $topRail->description,
+            'unique_code' => $topRail->unique_code,
+        ])
+        ->call('create')
+        ->assertHasNoFormErrors();
+
+    $this->assertDatabaseHas('components', ['unique_code' => $topRail->unique_code, 'type' => ComponentType::Partition->value]);
+});
+
+test('a component cannot reuse a unique code that exists under the same type', function () {
+    $topRail = Component::factory()->ofType(ComponentType::TopRail)->create();
+
+    Livewire::test(CreateComponent::class)
+        ->fillForm([
+            'type' => ComponentType::TopRail->value,
+            'code' => 'გალუ1234',
+            'description' => 'ტესტის აღწერა',
+            'unique_code' => $topRail->unique_code,
+        ])
+        ->call('create')
+        ->assertHasFormErrors(['unique_code' => 'unique']);
+});
+
 test('a component can be edited', function () {
     $component = Component::factory()->create();
 
@@ -52,6 +82,16 @@ test('a component can be edited', function () {
         ->assertHasNoFormErrors();
 
     expect($component->refresh()->code)->toBe('განახლებული');
+});
+
+test('an edited component cannot take a unique code that exists under the same type', function () {
+    $topRail = Component::factory()->ofType(ComponentType::TopRail)->create();
+    $otherTopRail = Component::factory()->ofType(ComponentType::TopRail)->create();
+
+    Livewire::test(EditComponent::class, ['record' => $otherTopRail->getKey()])
+        ->fillForm(['unique_code' => $topRail->unique_code])
+        ->call('save')
+        ->assertHasFormErrors(['unique_code' => 'unique']);
 });
 
 test('a component not in use can be deleted', function () {
