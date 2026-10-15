@@ -38,5 +38,14 @@ return [
             'invalid_color' => 'ფერი ":value" არასწორია. დასაშვებია: :allowed.',
             'duplicate_in_file' => 'კომპონენტი :unique_code (:type) ასევე არის მწკრივში :row.',
         ],
+        'notifications' => [
+            'succeeded_title' => 'კომპონენტების იმპორტი დასრულდა',
+            'succeeded_body' => 'შეიქმნა: :created, განახლდა: :updated, უცვლელი: :unchanged.',
+            'failed_title' => 'კომპონენტების იმპორტი ვერ შესრულდა',
+            'failed_body' => 'არაფერი შენახულა. გაასწორეთ ფაილი და სცადეთ თავიდან. ნაპოვნი შეცდომები: :count.',
+            'row_error' => 'მწკრივი :row: :message',
+            'more_errors' => '…და კიდევ :count შეცდომა.',
+            'crashed_body' => 'იმპორტისას რაღაც შეცდომა მოხდა. არაფერი შენახულა. გთხოვთ, სცადოთ თავიდან.',
+        ],
     ],
 ];
