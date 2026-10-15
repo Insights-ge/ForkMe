@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Storage;
 uses(RefreshDatabase::class);
 
 beforeEach(function () {
-    Storage::fake(ImportComponentsJob::DISK);
+    Storage::fake(ImportComponentsJob::disk());
     Notification::fake();
 
     $this->user = User::factory()->create();
@@ -26,7 +26,7 @@ beforeEach(function () {
 function storeComponentUpload(array $rows): string
 {
     $path = 'component-imports/upload.xlsx';
-    Storage::disk(ImportComponentsJob::DISK)->put($path, file_get_contents(writeSpreadsheet($rows)));
+    Storage::disk(ImportComponentsJob::disk())->put($path, file_get_contents(writeSpreadsheet($rows)));
 
     return $path;
 }
@@ -61,7 +61,7 @@ test('a valid upload is imported, deleted and reported to the user', function ()
     ImportComponentsJob::dispatchSync($path, $this->user, app()->getLocale());
 
     expect(Component::query()->where('unique_code', '000015193')->where('type', ComponentType::SideProfile)->exists())->toBeTrue()
-        ->and(Storage::disk(ImportComponentsJob::DISK)->exists($path))->toBeFalse()
+        ->and(Storage::disk(ImportComponentsJob::disk())->exists($path))->toBeFalse()
         ->and(sentComponentImportNotification($this->user))->toBe([
             'title' => __('components.import.notifications.succeeded_title'),
             'body' => __('components.import.notifications.succeeded_body', ['created' => 1, 'updated' => 0, 'unchanged' => 0]),
@@ -77,7 +77,7 @@ test('an upload that fails validation saves nothing, is deleted and the errors a
     $notification = sentComponentImportNotification($this->user);
 
     expect(Component::query()->count())->toBe(0)
-        ->and(Storage::disk(ImportComponentsJob::DISK)->exists($path))->toBeFalse()
+        ->and(Storage::disk(ImportComponentsJob::disk())->exists($path))->toBeFalse()
         ->and($notification['title'])->toBe(__('components.import.notifications.failed_title'))
         ->and($notification['status'])->toBe('danger')
         ->and($notification['body'])->toContain(e(__('components.import.notifications.row_error', [
@@ -91,7 +91,7 @@ test('an upload with wrong headers is deleted and the header errors are reported
 
     ImportComponentsJob::dispatchSync($path, $this->user, app()->getLocale());
 
-    expect(Storage::disk(ImportComponentsJob::DISK)->exists($path))->toBeFalse()
+    expect(Storage::disk(ImportComponentsJob::disk())->exists($path))->toBeFalse()
         ->and(sentComponentImportNotification($this->user)['body'])->toContain(e(__('components.import.errors.missing_column', ['column' => 'description'])));
 });
 
@@ -121,7 +121,7 @@ test('when the job crashes the upload is deleted and the user is told nothing wa
 
     (new ImportComponentsJob($path, $this->user, app()->getLocale()))->failed(new RuntimeException('Database went away'));
 
-    expect(Storage::disk(ImportComponentsJob::DISK)->exists($path))->toBeFalse()
+    expect(Storage::disk(ImportComponentsJob::disk())->exists($path))->toBeFalse()
         ->and(sentComponentImportNotification($this->user))->toBe([
             'title' => __('components.import.notifications.failed_title'),
             'body' => __('components.import.notifications.crashed_body'),

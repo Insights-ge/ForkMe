@@ -17,7 +17,7 @@ uses(RefreshDatabase::class);
 
 beforeEach(function () {
     $this->seed([UserSeeder::class, RoleSeeder::class]);
-    Storage::fake(ImportComponentsJob::DISK);
+    Storage::fake(ImportComponentsJob::disk());
     Queue::fake();
 
     $this->actingAs(User::where('email', 'admin@ltb.ge')->first());
@@ -87,7 +87,7 @@ test('the preview lists the errors and the import cannot be confirmed', function
         ->assertHasFormErrors(['file']);
 
     Queue::assertNothingPushed();
-    expect(Storage::disk(ImportComponentsJob::DISK)->allFiles())->toBeEmpty();
+    expect(Storage::disk(ImportComponentsJob::disk())->allFiles())->toBeEmpty();
 });
 
 test('confirming a valid file stores it and queues the import', function () {
@@ -96,7 +96,7 @@ test('confirming a valid file stores it and queues the import', function () {
         ->assertHasNoFormErrors()
         ->assertNotified(__('components.import.actions.queued_title'));
 
-    $storedFiles = Storage::disk(ImportComponentsJob::DISK)->allFiles('component-imports');
+    $storedFiles = Storage::disk(ImportComponentsJob::disk())->allFiles('component-imports');
 
     expect($storedFiles)->toHaveCount(1);
 

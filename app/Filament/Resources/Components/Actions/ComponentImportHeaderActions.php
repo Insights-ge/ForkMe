@@ -54,7 +54,7 @@ class ComponentImportHeaderActions
                     ->label(__('components.import.actions.file'))
                     ->acceptedFileTypes([self::XLSX_MIME_TYPE])
                     ->maxSize(self::MAX_FILE_SIZE_KILOBYTES)
-                    ->disk(ImportComponentsJob::DISK)
+                    ->disk(ImportComponentsJob::disk())
                     ->directory('component-imports')
                     ->visibility('private')
                     ->required()

@@ -22,8 +22,6 @@ class ImportComponentsJob implements ShouldQueue
 {
     use Localizable, Queueable;
 
-    public const string DISK = 'local';
-
     /**
      * A 5,000-row import takes a few seconds. Kept below the database queue's retry_after (90 s),
      * so the queue never starts this job again while it is still running.
@@ -45,12 +43,20 @@ class ImportComponentsJob implements ShouldQueue
         public string $locale,
     ) {}
 
+    /**
+     * The disk the upload is stored on until this job has read it.
+     */
+    public static function disk(): string
+    {
+        return config()->string('filesystems.imports_disk');
+    }
+
     public function handle(ComponentSpreadsheetReader $reader, ComponentImportService $importService): void
     {
         try {
             $result = $this->import($reader, $importService);
         } finally {
-            Storage::disk(self::DISK)->delete($this->path);
+            Storage::disk(self::disk())->delete($this->path);
         }
 
         $this->withLocale($this->locale, fn () => $this->resultNotification($result)->sendToDatabase($this->user));
@@ -61,7 +67,7 @@ class ImportComponentsJob implements ShouldQueue
      */
     public function failed(?Throwable $exception): void
     {
-        Storage::disk(self::DISK)->delete($this->path);
+        Storage::disk(self::disk())->delete($this->path);
 
         $this->withLocale($this->locale, fn () => Notification::make()
             ->danger()
@@ -72,7 +78,7 @@ class ImportComponentsJob implements ShouldQueue
 
     private function import(ComponentSpreadsheetReader $reader, ComponentImportService $importService): ComponentImportResultData
     {
-        $spreadsheet = $reader->read(Storage::disk(self::DISK)->path($this->path));
+        $spreadsheet = $reader->read(Storage::disk(self::disk())->path($this->path));
 
         if ($spreadsheet->hasErrors()) {
             $errors = new ImportErrorListData(

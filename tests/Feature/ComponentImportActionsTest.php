@@ -56,9 +56,9 @@ test('the preview reports errors about the whole file', function () {
 });
 
 test('the import is queued for the user in their language', function () {
-    Storage::fake(ImportComponentsJob::DISK);
+    Storage::fake(ImportComponentsJob::disk());
     Queue::fake();
-    Storage::disk(ImportComponentsJob::DISK)->put('component-imports/upload.xlsx', 'content');
+    Storage::disk(ImportComponentsJob::disk())->put('component-imports/upload.xlsx', 'content');
 
     app(DispatchComponentImportAction::class)->execute($this->admin, 'component-imports/upload.xlsx', 'ka');
 
@@ -68,7 +68,7 @@ test('the import is queued for the user in their language', function () {
 });
 
 test('an import is not queued when the upload does not exist', function () {
-    Storage::fake(ImportComponentsJob::DISK);
+    Storage::fake(ImportComponentsJob::disk());
     Queue::fake();
 
     expect(fn () => app(DispatchComponentImportAction::class)->execute($this->admin, 'component-imports/missing.xlsx', 'ka'))
@@ -89,9 +89,9 @@ test('the sample has only the header row', function () {
 });
 
 test('users without the import permission cannot preview, import or download the sample', function () {
-    Storage::fake(ImportComponentsJob::DISK);
+    Storage::fake(ImportComponentsJob::disk());
     Queue::fake();
-    Storage::disk(ImportComponentsJob::DISK)->put('component-imports/upload.xlsx', 'content');
+    Storage::disk(ImportComponentsJob::disk())->put('component-imports/upload.xlsx', 'content');
     $path = writeSpreadsheet([componentImportHeaders(), array_values(componentImportRow())]);
 
     expect(fn () => app(PreviewComponentImportAction::class)->execute($this->user, $path))->toThrow(AuthorizationException::class)

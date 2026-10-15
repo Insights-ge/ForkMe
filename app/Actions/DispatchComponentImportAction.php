@@ -21,7 +21,7 @@ class DispatchComponentImportAction
     {
         Gate::forUser($user)->authorize('import', Component::class);
 
-        if (! Storage::disk(ImportComponentsJob::DISK)->exists($path)) {
+        if (! Storage::disk(ImportComponentsJob::disk())->exists($path)) {
             throw new InvalidArgumentException("The uploaded file [{$path}] does not exist.");
         }
 

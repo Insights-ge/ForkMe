@@ -17,6 +17,19 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Imports Disk
+    |--------------------------------------------------------------------------
+    |
+    | The disk that uploaded import spreadsheets are stored on until the queued
+    | import has read them. It must use the "local" driver, because the import
+    | reads the file from its path on the server.
+    |
+    */
+
+    'imports_disk' => env('IMPORTS_DISK', 'local'),
+
+    /*
+    |--------------------------------------------------------------------------
     | Filesystem Disks
     |--------------------------------------------------------------------------
     |
