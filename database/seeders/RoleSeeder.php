@@ -46,6 +46,7 @@ class RoleSeeder extends Seeder
             'Create:Component',
             'Update:Component',
             'Delete:Component',
+            'Import:Component',
             'ViewAny:DoorVariant',
             'View:DoorVariant',
             'Create:DoorVariant',

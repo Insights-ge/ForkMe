@@ -66,4 +66,9 @@ class ComponentPolicy
     {
         return $authUser->can('Reorder:Component');
     }
+
+    public function import(AuthUser $authUser): bool
+    {
+        return $authUser->can('Import:Component');
+    }
 }
