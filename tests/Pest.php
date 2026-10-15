@@ -1,5 +1,6 @@
 <?php
 
+use App\Data\ComponentImportRowData;
 use App\Enums\ComponentImportColumn;
 use OpenSpout\Common\Entity\Row;
 use OpenSpout\Writer\XLSX\Writer;
@@ -89,4 +90,21 @@ function componentImportRow(array $overrides = []): array
         'description' => 'პროფილი. ნობელალუმინა XGJB-1058P ვწ. ორმხრივი გვერდი',
         'color' => 'შავი',
     ], $overrides);
+}
+
+/**
+ * A valid component import row DTO.
+ *
+ * @param  array<string, mixed>  $overrides  Constructor arguments to change.
+ */
+function componentImportRowData(array $overrides = []): ComponentImportRowData
+{
+    return new ComponentImportRowData(...array_merge([
+        'rowNumber' => 2,
+        'type' => 'პროფილი გვერდითა',
+        'uniqueCode' => '000015193',
+        'code' => 'გალუ4108',
+        'description' => 'პროფილი. ნობელალუმინა XGJB-1058P ვწ. ორმხრივი გვერდი',
+        'color' => 'შავი',
+    ], $overrides));
 }

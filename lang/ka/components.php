@@ -32,6 +32,11 @@ return [
             'unknown_column' => 'სვეტი :column უცნობია.',
             'duplicate_column' => 'სვეტი :column ერთზე მეტჯერ გვხვდება.',
             'too_many_rows' => 'ფაილში :max-ზე მეტი მწკრივია.',
+            'required' => ':column სავალდებულოა.',
+            'too_long' => ':column არ უნდა აღემატებოდეს :max სიმბოლოს.',
+            'invalid_type' => 'ტიპი ":value" არასწორია. დასაშვებია: :allowed.',
+            'invalid_color' => 'ფერი ":value" არასწორია. დასაშვებია: :allowed.',
+            'duplicate_in_file' => 'კომპონენტი :unique_code (:type) ასევე არის მწკრივში :row.',
         ],
     ],
 ];

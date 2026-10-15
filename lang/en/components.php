@@ -32,6 +32,11 @@ return [
             'unknown_column' => 'Column :column is not a known column.',
             'duplicate_column' => 'Column :column appears more than once.',
             'too_many_rows' => 'The file has more than :max rows.',
+            'required' => ':column is required.',
+            'too_long' => ':column may not be longer than :max characters.',
+            'invalid_type' => 'Type ":value" is not valid. Allowed: :allowed.',
+            'invalid_color' => 'Colour ":value" is not valid. Allowed: :allowed.',
+            'duplicate_in_file' => 'Component :unique_code (:type) is also in row :row.',
         ],
     ],
 ];
