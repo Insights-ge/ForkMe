@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Components\Pages;
 
+use App\Filament\Resources\Components\Actions\ComponentImportHeaderActions;
 use App\Filament\Resources\Components\ComponentResource;
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
@@ -13,6 +14,8 @@ class ListComponents extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
+            ComponentImportHeaderActions::downloadSample(),
+            ComponentImportHeaderActions::import(),
             CreateAction::make(),
         ];
     }

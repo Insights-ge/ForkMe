@@ -25,6 +25,21 @@ return [
         'unique_code' => 'Unique code',
     ],
     'import' => [
+        'actions' => [
+            'download_sample' => 'Download sample',
+            'sample_file_name' => 'components-import-sample.xlsx',
+            'import' => 'Import from Excel',
+            'modal_heading' => 'Import components from Excel',
+            'modal_description' => 'Columns: type, unique_code, code, description, color. Download the sample for the exact headers. Existing components are updated from the file; one error stops the whole import.',
+            'modal_submit' => 'Import',
+            'file' => 'Excel file (.xlsx)',
+            'preview' => 'Preview',
+            'preview_counts' => 'To create: :create · To update: :update · Unchanged: :unchanged',
+            'preview_errors' => 'Errors found: :count. Fix the file and upload it again.',
+            'file_has_errors' => 'The file has errors. Fix them and upload it again.',
+            'queued_title' => 'Import started',
+            'queued_body' => 'You will get a notification when it is finished.',
+        ],
         'errors' => [
             'file_unreadable' => 'The file could not be read. Upload a valid .xlsx file.',
             'no_header' => 'The file has no header row.',

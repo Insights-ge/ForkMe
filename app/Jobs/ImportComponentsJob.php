@@ -4,15 +4,14 @@ namespace App\Jobs;
 
 use App\Data\ComponentImportResultData;
 use App\Data\ImportErrorListData;
-use App\Data\ImportRowErrorData;
 use App\Models\User;
 use App\Services\ComponentImportService;
 use App\Services\ComponentSpreadsheetReader;
+use App\Support\ComponentImportErrorFormatter;
 use Filament\Notifications\Notification;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\HtmlString;
 use Illuminate\Support\Traits\Localizable;
 use Throwable;
 
@@ -93,7 +92,10 @@ class ImportComponentsJob implements ShouldQueue
             return Notification::make()
                 ->danger()
                 ->title(__('components.import.notifications.failed_title'))
-                ->body($this->errorsBody($result->errors));
+                ->body(app(ComponentImportErrorFormatter::class)->toHtml(
+                    __('components.import.notifications.failed_body', ['count' => $result->errors->totalCount]),
+                    $result->errors,
+                ));
         }
 
         return Notification::make()
@@ -104,31 +106,5 @@ class ImportComponentsJob implements ShouldQueue
                 'updated' => $result->updatedCount,
                 'unchanged' => $result->unchangedCount,
             ]));
-    }
-
-    private function errorsBody(ImportErrorListData $errors): HtmlString
-    {
-        $lines = [e(__('components.import.notifications.failed_body', ['count' => $errors->totalCount]))];
-
-        foreach ($errors->errors as $error) {
-            $lines[] = e($this->errorLine($error));
-        }
-
-        $hiddenErrorCount = $errors->totalCount - count($errors->errors);
-
-        if ($hiddenErrorCount > 0) {
-            $lines[] = e(__('components.import.notifications.more_errors', ['count' => $hiddenErrorCount]));
-        }
-
-        return new HtmlString(implode('<br>', $lines));
-    }
-
-    private function errorLine(ImportRowErrorData $error): string
-    {
-        if ($error->rowNumber === null) {
-            return $error->message;
-        }
-
-        return __('components.import.notifications.row_error', ['row' => $error->rowNumber, 'message' => $error->message]);
     }
 }

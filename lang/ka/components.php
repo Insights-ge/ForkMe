@@ -25,6 +25,21 @@ return [
         'unique_code' => 'არტიკული',
     ],
     'import' => [
+        'actions' => [
+            'download_sample' => 'ნიმუშის ჩამოტვირთვა',
+            'sample_file_name' => 'components-import-sample.xlsx',
+            'import' => 'Excel-იდან იმპორტი',
+            'modal_heading' => 'კომპონენტების იმპორტი Excel-იდან',
+            'modal_description' => 'სვეტები: type, unique_code, code, description, color. ზუსტი სათაურებისთვის ჩამოტვირთეთ ნიმუში. არსებული კომპონენტები განახლდება ფაილიდან; ერთი შეცდომაც კი აჩერებს მთელ იმპორტს.',
+            'modal_submit' => 'იმპორტი',
+            'file' => 'Excel ფაილი (.xlsx)',
+            'preview' => 'წინასწარი ნახვა',
+            'preview_counts' => 'შეიქმნება: :create · განახლდება: :update · უცვლელი: :unchanged',
+            'preview_errors' => 'ნაპოვნი შეცდომები: :count. გაასწორეთ ფაილი და ატვირთეთ თავიდან.',
+            'file_has_errors' => 'ფაილში შეცდომებია. გაასწორეთ და ატვირთეთ თავიდან.',
+            'queued_title' => 'იმპორტი დაიწყო',
+            'queued_body' => 'დასრულებისას მიიღებთ შეტყობინებას.',
+        ],
         'errors' => [
             'file_unreadable' => 'ფაილის წაკითხვა ვერ მოხერხდა. ატვირთეთ სწორი .xlsx ფაილი.',
             'no_header' => 'ფაილს არ აქვს სათაურების მწკრივი.',
