@@ -14,7 +14,6 @@ class ListComponents extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            ComponentImportHeaderActions::downloadSample(),
             ComponentImportHeaderActions::import(),
             CreateAction::make(),
         ];

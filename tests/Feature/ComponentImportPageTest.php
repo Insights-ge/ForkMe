@@ -6,6 +6,7 @@ use App\Jobs\ImportComponentsJob;
 use App\Models\User;
 use Database\Seeders\RoleSeeder;
 use Database\Seeders\UserSeeder;
+use Filament\Actions\Testing\TestAction;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Queue;
@@ -34,26 +35,32 @@ function componentImportUpload(array $rows): UploadedFile
     return UploadedFile::fake()->createWithContent('components.xlsx', file_get_contents($path));
 }
 
-test('admins see the sample and import actions', function () {
+test('admins see the import action', function () {
     Livewire::test(ListComponents::class)
-        ->assertActionVisible('downloadComponentImportSample')
         ->assertActionVisible('importComponents');
 });
 
-test('users without the import permission do not see the sample and import actions', function () {
+test('the sample download is inside the import modal, not on the page', function () {
+    Livewire::test(ListComponents::class)
+        ->assertActionDoesNotExist('downloadComponentImportSample')
+        ->mountAction('importComponents')
+        ->assertActionVisible(TestAction::make('downloadComponentImportSample')->schemaComponent('sampleActions'));
+});
+
+test('users without the import permission do not see the import action', function () {
     $user = User::factory()->create();
     $user->assignRole(RoleEnum::User->value);
     $user->givePermissionTo('ViewAny:Component');
     $this->actingAs($user);
 
     Livewire::test(ListComponents::class)
-        ->assertActionHidden('downloadComponentImportSample')
         ->assertActionHidden('importComponents');
 });
 
-test('the sample can be downloaded', function () {
+test('the sample can be downloaded from the import modal', function () {
     Livewire::test(ListComponents::class)
-        ->callAction('downloadComponentImportSample')
+        ->mountAction('importComponents')
+        ->callAction(TestAction::make('downloadComponentImportSample')->schemaComponent('sampleActions'))
         ->assertFileDownloaded(__('components.import.actions.sample_file_name'));
 });
 

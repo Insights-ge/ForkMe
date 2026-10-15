@@ -15,6 +15,7 @@ use Filament\Facades\Filament;
 use Filament\Forms\Components\FileUpload;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Notifications\Notification;
+use Filament\Schemas\Components\Actions;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Support\HtmlString;
@@ -23,7 +24,7 @@ use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use UnexpectedValueException;
 
 /**
- * The "Download sample" and "Import from Excel" header actions of the components list page.
+ * The "Import from Excel" header action of the components list page, with "Download sample" inside its modal.
  */
 class ComponentImportHeaderActions
 {
@@ -33,19 +34,10 @@ class ComponentImportHeaderActions
      * @var array<string, ComponentImportPreviewData>
      */
     private static array $previews = [];
+
     private const string XLSX_MIME_TYPE = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
 
     private const int MAX_FILE_SIZE_KILOBYTES = 5 * 1024;
-
-    public static function downloadSample(): Action
-    {
-        return Action::make('downloadComponentImportSample')
-            ->label(__('components.import.actions.download_sample'))
-            ->icon(Heroicon::OutlinedArrowDownTray)
-            ->color('gray')
-            ->authorize('import')
-            ->action(fn (): BinaryFileResponse => self::sampleDownload());
-    }
 
     public static function import(): Action
     {
@@ -57,6 +49,7 @@ class ComponentImportHeaderActions
             ->modalDescription(__('components.import.actions.modal_description'))
             ->modalSubmitActionLabel(__('components.import.actions.modal_submit'))
             ->schema([
+                Actions::make([self::downloadSample()])->key('sampleActions'),
                 FileUpload::make('file')
                     ->label(__('components.import.actions.file'))
                     ->acceptedFileTypes([self::XLSX_MIME_TYPE])
@@ -73,6 +66,16 @@ class ComponentImportHeaderActions
                     ->visible(fn (Get $get): bool => self::uploadedFile($get('file')) !== null),
             ])
             ->action(fn (array $data) => self::dispatchImport($data));
+    }
+
+    private static function downloadSample(): Action
+    {
+        return Action::make('downloadComponentImportSample')
+            ->label(__('components.import.actions.download_sample'))
+            ->icon(Heroicon::OutlinedArrowDownTray)
+            ->color('gray')
+            ->authorize('import')
+            ->action(fn (): BinaryFileResponse => self::sampleDownload());
     }
 
     private static function sampleDownload(): BinaryFileResponse
