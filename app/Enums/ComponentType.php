@@ -13,6 +13,35 @@ enum ComponentType: string implements HasColor, HasLabel
     case Partition = 'partition';
     case SoftCloseMechanism = 'soft_close_mechanism';
 
+    /**
+     * Maps the Georgian type name used in import spreadsheets back to the enum.
+     */
+    public static function tryFromGeorgian(string $name): ?self
+    {
+        foreach (self::cases() as $type) {
+            if ($type->georgianName() === $name) {
+                return $type;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * The fixed Georgian type name used in import spreadsheets. Unlike the label, it isn't translatable,
+     * so editing translations doesn't change which files can be imported.
+     */
+    public function georgianName(): string
+    {
+        return match ($this) {
+            self::SideProfile => 'პროფილი გვერდითა',
+            self::TopRail => 'შემკვრელი ზედა',
+            self::BottomRail => 'შემკვრელი ქვედა',
+            self::Partition => 'ტიხარი',
+            self::SoftCloseMechanism => 'ნელი დაკეტვის მექანიზმი',
+        };
+    }
+
     public function getLabel(): string
     {
         return match ($this) {

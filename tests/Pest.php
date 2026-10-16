@@ -1,5 +1,9 @@
 <?php
 
+use App\Data\ComponentImportRowData;
+use App\Enums\ComponentImportColumn;
+use OpenSpout\Common\Entity\Row;
+use OpenSpout\Writer\XLSX\Writer;
 use Tests\TestCase;
 
 /*
@@ -43,7 +47,64 @@ expect()->extend('toBeOne', function () {
 |
 */
 
-function something()
+/**
+ * Writes the rows to a temporary .xlsx file and returns its path. Each row is a list of cell values; an empty list is a blank row.
+ *
+ * @param  list<list<mixed>>  $rows
+ */
+function writeSpreadsheet(array $rows): string
 {
-    // ..
+    $path = tempnam(sys_get_temp_dir(), 'import-test-') . '.xlsx';
+    $writer = new Writer;
+    $writer->openToFile($path);
+
+    foreach ($rows as $row) {
+        $writer->addRow(Row::fromValues($row));
+    }
+
+    $writer->close();
+
+    return $path;
+}
+
+/**
+ * @return list<string>
+ */
+function componentImportHeaders(): array
+{
+    return array_column(ComponentImportColumn::cases(), 'value');
+}
+
+/**
+ * A valid component spreadsheet row, keyed by header.
+ *
+ * @param  array<string, mixed>  $overrides
+ * @return array<string, mixed>
+ */
+function componentImportRow(array $overrides = []): array
+{
+    return array_merge([
+        'type' => 'პროფილი გვერდითა',
+        'unique_code' => '000015193',
+        'code' => 'გალუ4108',
+        'description' => 'პროფილი. ნობელალუმინა XGJB-1058P ვწ. ორმხრივი გვერდი',
+        'color' => 'შავი',
+    ], $overrides);
+}
+
+/**
+ * A valid component import row DTO.
+ *
+ * @param  array<string, mixed>  $overrides  Constructor arguments to change.
+ */
+function componentImportRowData(array $overrides = []): ComponentImportRowData
+{
+    return new ComponentImportRowData(...array_merge([
+        'rowNumber' => 2,
+        'type' => 'პროფილი გვერდითა',
+        'uniqueCode' => '000015193',
+        'code' => 'გალუ4108',
+        'description' => 'პროფილი. ნობელალუმინა XGJB-1058P ვწ. ორმხრივი გვერდი',
+        'color' => 'შავი',
+    ], $overrides));
 }
