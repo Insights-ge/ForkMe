@@ -58,8 +58,6 @@ return [
             'succeeded_body' => ':created created, :updated updated, :unchanged unchanged.',
             'failed_title' => 'Component import failed',
             'failed_body' => 'Nothing was saved. Fix the file and import it again. Errors found: :count.',
-            'row_error' => 'Row :row: :message',
-            'more_errors' => '…and :count more errors.',
             'crashed_body' => 'Something went wrong while importing. Nothing was saved. Please try again.',
         ],
     ],
