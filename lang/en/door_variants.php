@@ -40,6 +40,21 @@ return [
         'soft_close_mechanism' => 'Soft-close mechanism',
     ],
     'import' => [
+        'actions' => [
+            'download_sample' => 'Download sample',
+            'sample_file_name' => 'door-variants-import-sample.xlsx',
+            'import' => 'Import from Excel',
+            'modal_heading' => 'Import door variants from Excel',
+            'modal_description' => 'Download the sample for the exact headers. Door models and components must already exist. Existing door variants are updated from the file; one error stops the whole import.',
+            'modal_submit' => 'Import',
+            'file' => 'Excel file (.xlsx)',
+            'preview' => 'Preview',
+            'preview_counts' => 'To create: :create · To update: :update · Unchanged: :unchanged',
+            'preview_errors' => 'Errors found: :count. Fix the file and upload it again.',
+            'file_has_errors' => 'The file has errors. Fix them and upload it again.',
+            'queued_title' => 'Import started',
+            'queued_body' => 'You will get a notification when it is finished.',
+        ],
         'errors' => [
             'required' => ':column is required.',
             'too_long' => ':column may not be longer than :max characters.',

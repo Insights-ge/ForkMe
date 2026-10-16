@@ -40,6 +40,21 @@ return [
         'soft_close_mechanism' => 'ნელი დაკეტვის მექანიზმი',
     ],
     'import' => [
+        'actions' => [
+            'download_sample' => 'ნიმუშის ჩამოტვირთვა',
+            'sample_file_name' => 'door-variants-import-sample.xlsx',
+            'import' => 'Excel-იდან იმპორტი',
+            'modal_heading' => 'კარის ვარიანტების იმპორტი Excel-იდან',
+            'modal_description' => 'ზუსტი სათაურებისთვის ჩამოტვირთეთ ნიმუში. კარის მოდელები და კომპონენტები წინასწარ უნდა არსებობდეს. არსებული კარის ვარიანტები განახლდება ფაილიდან; ერთი შეცდომაც კი აჩერებს მთელ იმპორტს.',
+            'modal_submit' => 'იმპორტი',
+            'file' => 'Excel ფაილი (.xlsx)',
+            'preview' => 'წინასწარი ნახვა',
+            'preview_counts' => 'შეიქმნება: :create · განახლდება: :update · უცვლელი: :unchanged',
+            'preview_errors' => 'ნაპოვნი შეცდომები: :count. გაასწორეთ ფაილი და ატვირთეთ თავიდან.',
+            'file_has_errors' => 'ფაილში შეცდომებია. გაასწორეთ და ატვირთეთ თავიდან.',
+            'queued_title' => 'იმპორტი დაიწყო',
+            'queued_body' => 'დასრულებისას მიიღებთ შეტყობინებას.',
+        ],
         'errors' => [
             'required' => ':column სავალდებულოა.',
             'too_long' => ':column არ უნდა აღემატებოდეს :max სიმბოლოს.',
