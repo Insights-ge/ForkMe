@@ -53,5 +53,12 @@ return [
             'duplicate_product_code' => 'Product code :product_code is also in row :row.',
             'product_code_taken' => 'Product code :product_code already belongs to door variant :unique_code.',
         ],
+        'notifications' => [
+            'succeeded_title' => 'Door variant import finished',
+            'succeeded_body' => ':created created, :updated updated, :unchanged unchanged.',
+            'failed_title' => 'Door variant import failed',
+            'failed_body' => 'Nothing was saved. Fix the file and import it again. Errors found: :count.',
+            'crashed_body' => 'Something went wrong while importing. Nothing was saved. Please try again.',
+        ],
     ],
 ];

@@ -53,5 +53,12 @@ return [
             'duplicate_product_code' => 'პროდუქტის კოდი :product_code ასევე არის მწკრივში :row.',
             'product_code_taken' => 'პროდუქტის კოდი :product_code უკვე ეკუთვნის კარის ვარიანტს :unique_code.',
         ],
+        'notifications' => [
+            'succeeded_title' => 'კარის ვარიანტების იმპორტი დასრულდა',
+            'succeeded_body' => 'შეიქმნა: :created, განახლდა: :updated, უცვლელი: :unchanged.',
+            'failed_title' => 'კარის ვარიანტების იმპორტი ვერ შესრულდა',
+            'failed_body' => 'არაფერი შენახულა. გაასწორეთ ფაილი და სცადეთ თავიდან. ნაპოვნი შეცდომები: :count.',
+            'crashed_body' => 'იმპორტისას რაღაც შეცდომა მოხდა. არაფერი შენახულა. გთხოვთ, სცადოთ თავიდან.',
+        ],
     ],
 ];
