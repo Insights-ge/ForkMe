@@ -92,7 +92,7 @@ test('an upload with wrong headers is deleted and the header errors are reported
     ImportComponentsJob::dispatchSync($path, $this->user, app()->getLocale());
 
     expect(Storage::disk(ImportComponentsJob::disk())->exists($path))->toBeFalse()
-        ->and(sentComponentImportNotification($this->user)['body'])->toContain(e(__('components.import.errors.missing_column', ['column' => 'description'])));
+        ->and(sentComponentImportNotification($this->user)['body'])->toContain(e(__('imports.errors.missing_column', ['column' => 'description'])));
 });
 
 test('the failure report lists at most 200 errors and says how many more there are', function () {

@@ -2,6 +2,7 @@
 
 use App\Data\ComponentImportRowData;
 use App\Enums\ComponentImportColumn;
+use App\Enums\DoorVariantImportColumn;
 use OpenSpout\Common\Entity\Row;
 use OpenSpout\Writer\XLSX\Writer;
 use Tests\TestCase;
@@ -107,4 +108,37 @@ function componentImportRowData(array $overrides = []): ComponentImportRowData
         'description' => 'პროფილი. ნობელალუმინა XGJB-1058P ვწ. ორმხრივი გვერდი',
         'color' => 'შავი',
     ], $overrides));
+}
+
+/**
+ * @return list<string>
+ */
+function doorVariantImportHeaders(): array
+{
+    return array_column(DoorVariantImportColumn::cases(), 'value');
+}
+
+/**
+ * A valid door variant spreadsheet row (the first row of the seeded catalog), keyed by header.
+ *
+ * @param  array<string, mixed>  $overrides
+ * @return array<string, mixed>
+ */
+function doorVariantImportRow(array $overrides = []): array
+{
+    return array_merge([
+        'model_name' => 'მირზაია',
+        'product_full_name' => 'პნლა275002 - გასაგორებელი კარი მირზაია, შავი, 1600-2000, გალუ4108',
+        'product_code' => 'პნლა275002',
+        'color' => 'შავი',
+        'frame_design_code' => 'გალუ4108',
+        'unique_code' => '000041482',
+        'height_range_min' => '1600',
+        'height_range_max' => '2000',
+        'side_profile_unique_code' => '000015193',
+        'top_rail_unique_code' => '000016298',
+        'bottom_rail_unique_code' => '000016296',
+        'partition_unique_code' => '000016298',
+        'soft_close_mechanism_unique_code' => '000013473',
+    ], $overrides);
 }
