@@ -39,4 +39,19 @@ return [
         'partition' => 'Partition',
         'soft_close_mechanism' => 'Soft-close mechanism',
     ],
+    'import' => [
+        'errors' => [
+            'required' => ':column is required.',
+            'too_long' => ':column may not be longer than :max characters.',
+            'full_name_too_long' => ':column is too long.',
+            'invalid_color' => 'Colour ":value" is not valid. Allowed: :allowed.',
+            'invalid_height' => ':column ":value" must be a whole number from 0 to :max.',
+            'height_range_reversed' => 'height_range_min (:min) may not be greater than height_range_max (:max).',
+            'unknown_door_model' => 'Door model ":name" does not exist. Create it first.',
+            'unknown_component' => 'Component :unique_code (:type) does not exist. Import or create it first.',
+            'duplicate_unique_code' => 'Door variant :unique_code is also in row :row.',
+            'duplicate_product_code' => 'Product code :product_code is also in row :row.',
+            'product_code_taken' => 'Product code :product_code already belongs to door variant :unique_code.',
+        ],
+    ],
 ];

@@ -1,8 +1,12 @@
 <?php
 
 use App\Data\ComponentImportRowData;
+use App\Data\DoorVariantImportRowData;
+use App\Enums\ComponentType;
 use App\Enums\ComponentImportColumn;
 use App\Enums\DoorVariantImportColumn;
+use App\Models\Component;
+use App\Models\DoorModel;
 use OpenSpout\Common\Entity\Row;
 use OpenSpout\Writer\XLSX\Writer;
 use Tests\TestCase;
@@ -141,4 +145,47 @@ function doorVariantImportRow(array $overrides = []): array
         'partition_unique_code' => '000016298',
         'soft_close_mechanism_unique_code' => '000013473',
     ], $overrides);
+}
+
+/**
+ * A valid door variant import row DTO, matching doorVariantImportRow().
+ *
+ * @param  array<string, mixed>  $overrides  Constructor arguments to change.
+ */
+function doorVariantImportRowData(array $overrides = []): DoorVariantImportRowData
+{
+    return new DoorVariantImportRowData(...array_merge([
+        'rowNumber' => 2,
+        'modelName' => 'მირზაია',
+        'productFullName' => 'პნლა275002 - გასაგორებელი კარი მირზაია, შავი, 1600-2000, გალუ4108',
+        'productCode' => 'პნლა275002',
+        'color' => 'შავი',
+        'frameDesignCode' => 'გალუ4108',
+        'uniqueCode' => '000041482',
+        'heightRangeMin' => '1600',
+        'heightRangeMax' => '2000',
+        'sideProfileUniqueCode' => '000015193',
+        'topRailUniqueCode' => '000016298',
+        'bottomRailUniqueCode' => '000016296',
+        'partitionUniqueCode' => '000016298',
+        'softCloseMechanismUniqueCode' => '000013473',
+    ], $overrides));
+}
+
+/**
+ * Saves the door model and the components that doorVariantImportRow() refers to.
+ */
+function createDoorVariantImportReferences(): DoorModel
+{
+    foreach ([
+        ComponentType::SideProfile->value => '000015193',
+        ComponentType::TopRail->value => '000016298',
+        ComponentType::BottomRail->value => '000016296',
+        ComponentType::Partition->value => '000016298',
+        ComponentType::SoftCloseMechanism->value => '000013473',
+    ] as $type => $uniqueCode) {
+        Component::factory()->ofType(ComponentType::from($type))->create(['unique_code' => $uniqueCode]);
+    }
+
+    return DoorModel::factory()->create(['name' => 'მირზაია']);
 }

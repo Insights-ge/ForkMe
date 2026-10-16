@@ -2,6 +2,8 @@
 
 namespace App\Data;
 
+use App\Enums\DoorVariantImportColumn as Column;
+
 /**
  * One spreadsheet row, with trimmed and not yet validated values.
  */
@@ -30,4 +32,20 @@ readonly class DoorVariantImportRowData
         public string $partitionUniqueCode,
         public string $softCloseMechanismUniqueCode,
     ) {}
+
+    /**
+     * The unique code in each component column, keyed by the column's header.
+     *
+     * @return array<string, string>
+     */
+    public function componentUniqueCodes(): array
+    {
+        return [
+            Column::SideProfileUniqueCode->value => $this->sideProfileUniqueCode,
+            Column::TopRailUniqueCode->value => $this->topRailUniqueCode,
+            Column::BottomRailUniqueCode->value => $this->bottomRailUniqueCode,
+            Column::PartitionUniqueCode->value => $this->partitionUniqueCode,
+            Column::SoftCloseMechanismUniqueCode->value => $this->softCloseMechanismUniqueCode,
+        ];
+    }
 }

@@ -39,4 +39,19 @@ return [
         'partition' => 'ტიხარი',
         'soft_close_mechanism' => 'ნელი დაკეტვის მექანიზმი',
     ],
+    'import' => [
+        'errors' => [
+            'required' => ':column სავალდებულოა.',
+            'too_long' => ':column არ უნდა აღემატებოდეს :max სიმბოლოს.',
+            'full_name_too_long' => ':column ძალიან გრძელია.',
+            'invalid_color' => 'ფერი ":value" არასწორია. დასაშვებია: :allowed.',
+            'invalid_height' => ':column ":value" უნდა იყოს მთელი რიცხვი 0-დან :max-მდე.',
+            'height_range_reversed' => 'height_range_min (:min) არ უნდა აღემატებოდეს height_range_max-ს (:max).',
+            'unknown_door_model' => 'კარის მოდელი ":name" არ არსებობს. ჯერ შექმენით ის.',
+            'unknown_component' => 'კომპონენტი :unique_code (:type) არ არსებობს. ჯერ დააიმპორტეთ ან შექმენით ის.',
+            'duplicate_unique_code' => 'კარის ვარიანტი :unique_code ასევე არის მწკრივში :row.',
+            'duplicate_product_code' => 'პროდუქტის კოდი :product_code ასევე არის მწკრივში :row.',
+            'product_code_taken' => 'პროდუქტის კოდი :product_code უკვე ეკუთვნის კარის ვარიანტს :unique_code.',
+        ],
+    ],
 ];
