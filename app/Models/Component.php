@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\UseFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 #[Fillable(['type', 'code', 'description', 'color', 'unique_code'])]
 #[UseFactory(ComponentFactory::class)]
@@ -16,6 +17,14 @@ class Component extends Model
 {
     /** @use HasFactory<ComponentFactory> */
     use HasFactory;
+
+    /** @return BelongsToMany<Infill, $this, ComponentInfill> */
+    public function incompatibleInfills(): BelongsToMany
+    {
+        return $this->belongsToMany(Infill::class)
+            ->using(ComponentInfill::class)
+            ->withTimestamps();
+    }
 
     public function isInUse(): bool
     {
