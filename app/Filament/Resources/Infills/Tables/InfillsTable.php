@@ -15,10 +15,21 @@ class InfillsTable
     {
         return $table
             ->columns([
-                TextColumn::make('code')->label(__('infills.code'))->searchable()->sortable(),
-                TextColumn::make('description')->label(__('infills.description'))->searchable()->wrap(),
-                TextColumn::make('unique_code')->label(__('infills.unique_code'))->searchable()->copyable(),
-                TextColumn::make('incompatible_components_count')->label(__('infills.incompatible_components'))->sortable(),
+                TextColumn::make('code')
+                    ->label(__('infills.code'))
+                    ->searchable()
+                    ->sortable(),
+                TextColumn::make('description')
+                    ->label(__('infills.description'))
+                    ->searchable()
+                    ->wrap(),
+                TextColumn::make('unique_code')
+                    ->label(__('infills.unique_code'))
+                    ->searchable()
+                    ->copyable(),
+                TextColumn::make('incompatible_components_count')
+                    ->label(__('infills.incompatible_components'))
+                    ->sortable(),
             ])
             ->filters([
                 //
