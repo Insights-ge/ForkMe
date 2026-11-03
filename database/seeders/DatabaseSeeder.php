@@ -18,5 +18,6 @@ class DatabaseSeeder extends Seeder
         $this->call(DoorCatalogSeeder::class);
         $this->call(InfillSeeder::class);
         $this->call(InfillIncompatibilitySeeder::class);
+        $this->call(InfillPermissionSeeder::class);
     }
 }
