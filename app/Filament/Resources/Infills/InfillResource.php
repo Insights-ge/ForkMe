@@ -19,7 +19,9 @@ class InfillResource extends Resource
 {
     protected static ?string $model = Infill::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedViewColumns;
+
+    protected static string|BackedEnum|null $activeNavigationIcon = Heroicon::ViewColumns;
 
     protected static ?int $navigationSort = 25;
 
