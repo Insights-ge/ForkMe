@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Components\Schemas;
 
 use App\Enums\ComponentType;
 use App\Enums\DoorColor;
+use App\Models\Infill;
 use BackedEnum;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -39,6 +40,12 @@ class ComponentForm
                     ->label(__('components.form.color'))
                     ->options(DoorColor::class)
                     ->searchable(),
+                Select::make('incompatibleInfills')
+                    ->label(__('infills.incompatible_infills'))
+                    ->relationship('incompatibleInfills', 'description')
+                    ->getOptionLabelFromRecordUsing(fn (Infill $record): string => "{$record->code} | {$record->description} | {$record->unique_code}")
+                    ->multiple()->searchable(['code', 'description', 'unique_code'])->preload()
+                    ->columnSpanFull(),
                 TextInput::make('unique_code')
                     ->label(__('components.form.unique_code'))
                     ->maxLength(255)
