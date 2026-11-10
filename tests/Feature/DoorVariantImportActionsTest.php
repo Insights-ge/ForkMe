@@ -8,7 +8,9 @@ use App\Jobs\ImportDoorVariantsJob;
 use App\Models\DoorVariant;
 use App\Models\User;
 use App\Services\DoorVariantSpreadsheetReader;
+use Database\Seeders\AdminPermissionSeeder;
 use Database\Seeders\RoleSeeder;
+use Database\Seeders\SuperAdminPermissionSeeder;
 use Database\Seeders\UserSeeder;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -18,7 +20,8 @@ use Illuminate\Support\Facades\Storage;
 uses(RefreshDatabase::class);
 
 beforeEach(function () {
-    $this->seed([UserSeeder::class, RoleSeeder::class]);
+    $this->seed([RoleSeeder::class, UserSeeder::class, AdminPermissionSeeder::class, SuperAdminPermissionSeeder::class]);
+    User::where('email', 'admin@ltb.ge')->firstOrFail()->givePermissionTo('Import:DoorVariant');
     createDoorVariantImportReferences();
 
     $this->admin = User::where('email', 'admin@ltb.ge')->first();

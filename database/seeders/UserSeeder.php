@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Enums\Role;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -20,7 +21,7 @@ class UserSeeder extends Seeder
                 'password' => Hash::make('demo'),
                 'email_verified_at' => now(),
             ]
-        );
+        )->assignRole(Role::SuperAdmin);
 
         User::query()->firstOrCreate(
             ['email' => 'admin@ltb.ge'],
@@ -29,6 +30,6 @@ class UserSeeder extends Seeder
                 'password' => Hash::make('1234'),
                 'email_verified_at' => now(),
             ]
-        );
+        )->assignRole(Role::Admin);
     }
 }
