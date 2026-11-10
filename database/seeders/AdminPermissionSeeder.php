@@ -12,7 +12,6 @@ class AdminPermissionSeeder extends Seeder
 {
     public function run(): void
     {
-        // Exact local admin permissions captured on 2026-11-10.
         $permissions = [
             'Create:Component',
             'Create:DoorModel',
