@@ -21,6 +21,7 @@ export default function slidingDoorBuilder({ initialStep, payload, previewLabels
             frameColor: 'black',
             panelWeights: [1, 1, 1],
         },
+        pendingChange: null,
         hasPreview: false,
         previewDoors: [],
         previewSelection: { doorId: null, panelId: null },
@@ -50,12 +51,40 @@ export default function slidingDoorBuilder({ initialStep, payload, previewLabels
             }
         },
 
+        requestConfigurationChange(configuration) {
+            const current = this.previewConfiguration;
+            const replacesFinish = current?.infillIdsByDoor?.some((finishes, doorIndex) => finishes.some((infillId, panelIndex) => (
+                infillId !== null && infillId !== undefined
+                && infillId !== configuration.infillIdsByDoor?.[doorIndex]?.[panelIndex]
+            )));
+            if (replacesFinish) {
+                this.pendingChange = { before: JSON.stringify(current), configuration };
+                this.$dispatch('open-modal', { id: 'builder-confirm-replacement' });
+            } else {
+                this.previewConfiguration = configuration;
+            }
+        },
+
+        confirmConfigurationChange() {
+            const pending = this.pendingChange;
+            // A confirmation only applies to the exact design the user reviewed.
+            if (pending && pending.before === JSON.stringify(this.previewConfiguration)) {
+                this.previewConfiguration = pending.configuration;
+            }
+            this.cancelConfigurationChange();
+        },
+
+        cancelConfigurationChange() {
+            this.pendingChange = null;
+            this.$dispatch('close-modal', { id: 'builder-confirm-replacement' });
+        },
+
         applyFinishToAllDoors() {
             if (!this.selectedPreviewPanel) {
                 return;
             }
             const infillIdsByDoor = this.previewDoors.map((door) => door.panels.map(() => this.paletteInfillId));
-            this.previewConfiguration = { ...this.previewConfiguration, infillIdsByDoor };
+            this.requestConfigurationChange({ ...this.previewConfiguration, infillIdsByDoor });
         },
 
         copySelectedDoor() {
@@ -64,10 +93,10 @@ export default function slidingDoorBuilder({ initialStep, payload, previewLabels
                 return;
             }
             const finishes = door.panels.map((panel) => this.previewConfiguration.infillIdsByDoor?.[door.index]?.[panel.index] ?? null);
-            this.previewConfiguration = {
+            this.requestConfigurationChange({
                 ...this.previewConfiguration,
                 infillIdsByDoor: this.previewDoors.map(() => [...finishes]),
-            };
+            });
         },
 
         get selectedLayoutId() {
@@ -84,7 +113,7 @@ export default function slidingDoorBuilder({ initialStep, payload, previewLabels
             const configuration = this.previewConfiguration;
             // Corresponding panels are matched by their top-to-bottom position.
             // Trim discarded values so increasing the count cannot revive removed finishes.
-            this.previewConfiguration = {
+            this.requestConfigurationChange({
                 ...configuration,
                 panelWeights: [...preset.panelWeights],
                 panelIdsByDoor: configuration.panelIdsByDoor?.map((ids) => ids.slice(0, preset.panelWeights.length)),
@@ -93,7 +122,7 @@ export default function slidingDoorBuilder({ initialStep, payload, previewLabels
                         ? configuration.infillIdsByDoor?.[doorIndex]?.[panelIndex] ?? null
                         : null
                 ))),
-            };
+            });
         },
 
         get selectedPreviewDoor() {

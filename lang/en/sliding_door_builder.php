@@ -19,6 +19,11 @@ return [
         'three_horizontal_panels' => 'Three equal horizontal panels',
     ],
     'finishes' => [
+        'replace_heading' => 'Replace panel finishes?',
+        'replace_description' => 'This change will replace or remove existing panel finishes. Continue?',
+        'cancel' => 'Cancel',
+        'replace' => 'Replace finishes',
+
         'apply_all' => 'Apply finish to all doors',
         'apply_all_description' => 'Use the selected finish on every panel of both doors.',
         'copy_door' => 'Copy this door',

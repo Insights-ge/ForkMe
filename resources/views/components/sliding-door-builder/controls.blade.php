@@ -86,4 +86,19 @@
             </x-filament::section>
         </div>
     @endforeach
+    <x-filament::modal
+        id="builder-confirm-replacement"
+        teleport="body"
+        :heading="__('sliding_door_builder.finishes.replace_heading')"
+        :description="__('sliding_door_builder.finishes.replace_description')"
+    >
+        <x-slot name="footerActions">
+            <x-filament::button color="gray" x-on:click="cancelConfigurationChange()" data-cancel-replacement>
+                {{ __('sliding_door_builder.finishes.cancel') }}
+            </x-filament::button>
+            <x-filament::button color="danger" x-on:click="confirmConfigurationChange()" data-confirm-replacement>
+                {{ __('sliding_door_builder.finishes.replace') }}
+            </x-filament::button>
+        </x-slot>
+    </x-filament::modal>
 </div>

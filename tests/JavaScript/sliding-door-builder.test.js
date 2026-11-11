@@ -86,6 +86,7 @@ test('shared preset choices update both door divisions and preserve unrelated co
 
 function editingBuilder() {
     const builder = createBuilder();
+    builder.$dispatch = () => {};
     builder.catalog.infills = [{ id: 7, code: 'A', description: 'Mapped' }, { id: 8, code: 'B', description: 'Neutral' }];
     builder.metadata.layoutPresets = [
         { id: 'full_panel', panelWeights: [1] },
@@ -149,6 +150,7 @@ test('bulk finish and door copy actions keep independent arrays and stable ident
     builder.selectPreviewPanel(builder.previewDoors[0].id, builder.previewDoors[0].panels[1].id);
     builder.chooseInfill(8);
     builder.copySelectedDoor();
+    builder.confirmConfigurationChange();
     assert.deepEqual(builder.previewConfiguration.infillIdsByDoor, [[7,8,7], [7,8,7]]);
     assert.notEqual(builder.previewConfiguration.infillIdsByDoor[0], builder.previewConfiguration.infillIdsByDoor[1]);
     builder.chooseInfill(null);
@@ -168,6 +170,7 @@ test('layout remapping preserves corresponding finishes and never resurrects rem
     const original = structuredClone(builder.previewConfiguration);
     builder.selectPreviewPanel(builder.previewDoors[1].id, builder.previewDoors[1].panels[2].id);
     builder.selectLayout('two_horizontal_panels');
+    builder.confirmConfigurationChange();
     let config = reconcilePreviewConfiguration(builder.previewConfiguration, original, () => 'unused');
     assert.deepEqual(config.infillIdsByDoor, [[7,8], [8,7]]);
     assert.deepEqual(config.panelIdsByDoor, original.panelIdsByDoor.map(ids => ids.slice(0,2)));
@@ -175,6 +178,7 @@ test('layout remapping preserves corresponding finishes and never resurrects rem
     assert.deepEqual(selection, { doorId: original.doorIds[1], panelId: null });
     builder.previewConfiguration = config;
     builder.selectLayout('full_panel');
+    builder.confirmConfigurationChange();
     config = reconcilePreviewConfiguration(builder.previewConfiguration, config, () => 'unused');
     builder.previewConfiguration = config;
     builder.selectLayout('three_horizontal_panels');
@@ -187,4 +191,41 @@ test('layout remapping preserves corresponding finishes and never resurrects rem
         assert.ok(!original.panelIdsByDoor.flat().includes(expanded.panelIdsByDoor[index][1]));
         assert.ok(!original.panelIdsByDoor.flat().includes(expanded.panelIdsByDoor[index][2]));
     }
+});
+
+
+test('bulk overwrites require confirmation and cancel leaves the design intact', () => {
+    const builder = editingBuilder();
+    const events = [];
+    builder.$dispatch = (name) => events.push(name);
+    builder.previewConfiguration.infillIdsByDoor = [[7,8,null], [8,null,7]];
+    const before = builder.previewConfiguration;
+    builder.applyFinishToAllDoors();
+    assert.equal(builder.previewConfiguration, before);
+    assert.ok(builder.pendingChange);
+    assert.equal(events.at(-1), 'open-modal');
+    builder.cancelConfigurationChange();
+    assert.equal(builder.pendingChange, null);
+    assert.equal(builder.previewConfiguration, before);
+    builder.copySelectedDoor();
+    assert.equal(builder.previewConfiguration, before);
+    builder.confirmConfigurationChange();
+    assert.deepEqual(builder.previewConfiguration.infillIdsByDoor, [[7,8,null], [7,8,null]]);
+    assert.equal(builder.pendingChange, null);
+    builder.selectLayout('full_panel');
+    assert.equal(builder.previewConfiguration.panelWeights.length, 3);
+    builder.confirmConfigurationChange();
+    assert.deepEqual(builder.previewConfiguration.infillIdsByDoor, [[7], [7]]);
+});
+
+test('stale confirmations cannot overwrite a newer design', () => {
+    const builder = editingBuilder();
+    builder.previewConfiguration.infillIdsByDoor = [[7,8,null], [null,null,null]];
+    builder.applyFinishToAllDoors();
+    assert.ok(builder.pendingChange);
+    builder.chooseInfill(8);
+    const newer = builder.previewConfiguration;
+    builder.confirmConfigurationChange();
+    assert.equal(builder.previewConfiguration, newer);
+    assert.equal(builder.pendingChange, null);
 });
