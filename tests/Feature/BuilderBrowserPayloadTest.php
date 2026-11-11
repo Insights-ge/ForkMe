@@ -34,7 +34,7 @@ test('the browser contract keeps empty catalog arrays separate from the metadata
     expect($decoded->catalog->models)->toBe([]);
     expect($decoded->catalog->infills)->toBe([]);
     expect($decoded->metadata)->toBeInstanceOf(stdClass::class);
-    expect(array_keys(get_object_vars($decoded->metadata)))->toBe(['layoutPresets']);
+    expect(array_keys(get_object_vars($decoded->metadata)))->toBe(['layoutPresets', 'frameColors', 'infillVisuals', 'neutralVisual']);
     expect($decoded->metadata->layoutPresets)->toHaveCount(3);
 });
 
@@ -95,6 +95,7 @@ test('the published schema uses the application enum values', function () {
     $schema = json_decode(file_get_contents(resource_path('schemas/sliding-door-builder-payload.schema.json')), true, flags: JSON_THROW_ON_ERROR);
 
     expect($schema['$defs']['variant']['properties']['color']['enum'])->toBe(array_column(DoorColor::cases(), 'value'));
+    expect($schema['$defs']['frameColor']['properties']['color']['enum'])->toBe(array_column(DoorColor::cases(), 'value'));
     expect($schema['$defs']['component']['properties']['type']['enum'])->toBe(array_column(ComponentType::cases(), 'value'));
     expect($schema['$defs']['layoutPreset']['properties']['id']['enum'])->toBe(array_column(BuilderLayout::cases(), 'value'));
 });

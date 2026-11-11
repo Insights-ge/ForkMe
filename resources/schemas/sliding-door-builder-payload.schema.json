@@ -18,13 +18,43 @@
             "description": "Presentation presets, kept separate from catalog facts.",
             "type": "object",
             "additionalProperties": false,
-            "required": ["layoutPresets"],
+            "required": ["layoutPresets", "frameColors", "infillVisuals", "neutralVisual"],
             "properties": {
-                "layoutPresets": { "type": "array", "items": { "$ref": "#/$defs/layoutPreset" } }
+                "layoutPresets": { "type": "array", "items": { "$ref": "#/$defs/layoutPreset" } },
+                "frameColors": { "type": "array", "items": { "$ref": "#/$defs/frameColor" } },
+                "infillVisuals": { "type": "array", "items": { "$ref": "#/$defs/infillVisual" } },
+                "neutralVisual": { "$ref": "#/$defs/visual" }
             }
         }
     },
     "$defs": {
+        "visual": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["fill"],
+            "properties": {
+                "fill": { "type": "string", "pattern": "^#[0-9A-F]{6}$" }
+            }
+        },
+        "frameColor": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["color", "label", "visual"],
+            "properties": {
+                "color": { "enum": ["black", "inox", "graphite", "silver"] },
+                "label": { "type": "string" },
+                "visual": { "$ref": "#/$defs/visual" }
+            }
+        },
+        "infillVisual": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["infillId", "visual"],
+            "properties": {
+                "infillId": { "$ref": "#/$defs/id" },
+                "visual": { "$ref": "#/$defs/visual" }
+            }
+        },
         "layoutPreset": {
             "type": "object",
             "additionalProperties": false,
