@@ -131,6 +131,43 @@
         font-variant-numeric: tabular-nums;
     }
 
+    .sliding-door-builder .builder-preview-door.is-selected > .builder-preview-frame {
+        stroke: var(--primary-600);
+    }
+
+    .sliding-door-builder .builder-preview-panel-highlight {
+        visibility: hidden;
+        pointer-events: none;
+        fill: none;
+        stroke: var(--primary-600);
+        stroke-width: 2;
+        stroke-dasharray: 5 3;
+    }
+
+    .sliding-door-builder .builder-preview-panel-highlight.is-selected {
+        visibility: visible;
+    }
+
+    .sliding-door-builder .builder-preview-panel,
+    .sliding-door-builder .builder-preview-frame {
+        cursor: pointer;
+    }
+
+    .sliding-door-builder .builder-preview-panel:focus-visible,
+    .sliding-door-builder .builder-preview-frame:focus-visible {
+        outline: 2px solid var(--primary-600);
+        outline-offset: 2px;
+    }
+
+    .sliding-door-builder .builder-preview-selector[aria-pressed='true'] {
+        box-shadow: 0 0 0 2px var(--primary-600);
+    }
+
+    .sliding-door-builder .builder-preview-door.is-selected > .builder-preview-frame:where(.dark, .dark *),
+    .sliding-door-builder .builder-preview-panel-highlight:where(.dark, .dark *) {
+        stroke: var(--primary-300);
+    }
+
     .sliding-door-builder .builder-preview {
         order: -1;
     }

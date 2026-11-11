@@ -50,6 +50,8 @@ test('admins and super admins can open the builder using their session locale', 
         ->assertSee(__('sliding_door_builder.steps.opening.label', [], $locale))
         ->assertSee(__('sliding_door_builder.preview.title', [], $locale))
         ->assertSee(__('sliding_door_builder.preview.drawing_label', [], $locale))
+        ->assertSee(__('sliding_door_builder.preview.doors_label', [], $locale))
+        ->assertSee(__('sliding_door_builder.preview.panels_label', [], $locale))
         ->assertSee(__('sliding_door_builder.summary.title', [], $locale))
         ->assertDontSee('Demo in development')
         ->assertSee('lang="' . $locale . '"', false);

@@ -36,6 +36,11 @@ return [
     'preview' => [
         'title' => 'Door preview',
         'drawing_label' => 'Sliding door front view with width and height dimensions',
+        'doors_label' => 'Select a door',
+        'panels_label' => 'Select a panel',
+        'door_label' => 'Door :number',
+        'panel_short_label' => 'Panel :number',
+        'panel_label' => 'Door :door, panel :panel',
         'width_annotation' => 'Width: :value mm',
         'height_annotation' => 'Height: :value mm',
         'empty_heading' => 'No preview yet',

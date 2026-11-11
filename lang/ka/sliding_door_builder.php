@@ -36,6 +36,11 @@ return [
     'preview' => [
         'title' => 'კარის ვიზუალი',
         'drawing_label' => 'კარის წინა ხედი სიგანისა და სიმაღლის ზომებით',
+        'doors_label' => 'აირჩიეთ კარი',
+        'panels_label' => 'აირჩიეთ პანელი',
+        'door_label' => 'კარი :number',
+        'panel_short_label' => 'პანელი :number',
+        'panel_label' => 'კარი :door, პანელი :panel',
         'width_annotation' => 'სიგანე: :value მმ',
         'height_annotation' => 'სიმაღლე: :value მმ',
         'empty_heading' => 'ვიზუალი ჯერ არ არის',
