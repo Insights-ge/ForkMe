@@ -2,6 +2,9 @@
     .sliding-door-builder {
         --builder-rule: var(--gray-200);
         --builder-preview-surface: var(--gray-50);
+        --builder-accent: var(--primary-700);
+        --builder-frame-edge: var(--gray-500);
+        --builder-annotation: var(--gray-700);
 
         min-width: 0;
         width: 100%;
@@ -12,6 +15,9 @@
     .sliding-door-builder:where(.dark, .dark *) {
         --builder-rule: var(--gray-700);
         --builder-preview-surface: var(--insights-theme-dark-well);
+        --builder-accent: var(--primary-300);
+        --builder-frame-edge: var(--gray-400);
+        --builder-annotation: var(--gray-200);
     }
 
     .sliding-door-builder .builder-step-navigation {
@@ -47,11 +53,11 @@
     }
 
     .sliding-door-builder .builder-step-navigation .fi-tabs-item.fi-active {
-        box-shadow: inset 0 -2px 0 var(--primary-500);
+        box-shadow: inset 0 -2px 0 var(--builder-accent);
     }
 
     .sliding-door-builder .builder-step-navigation .fi-tabs-item:focus-visible {
-        outline: 2px solid var(--primary-500);
+        outline: 2px solid var(--builder-accent);
         outline-offset: 2px;
     }
 
@@ -96,6 +102,79 @@
         min-height: 12rem;
     }
 
+    .sliding-door-builder .builder-preview-canvas {
+        position: relative;
+        width: 100%;
+        height: 18rem;
+        min-width: 0;
+    }
+
+    .sliding-door-builder .builder-preview-svg,
+    .sliding-door-builder .builder-preview-placeholder {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+    }
+
+    .sliding-door-builder .builder-preview-placeholder {
+        display: grid;
+        align-items: center;
+    }
+
+    .sliding-door-builder .builder-preview-svg {
+        color: var(--builder-annotation);
+    }
+
+    .sliding-door-builder .builder-preview-annotation {
+        fill: currentColor;
+        font-family: var(--font-sans);
+        font-size: 11px;
+        font-variant-numeric: tabular-nums;
+    }
+
+    .sliding-door-builder .builder-preview-door.is-selected > .builder-preview-frame {
+        stroke: var(--builder-accent);
+    }
+
+    .sliding-door-builder .builder-preview-panel-highlight {
+        visibility: hidden;
+        pointer-events: none;
+        fill: none;
+        stroke: var(--primary-700);
+        stroke-width: 2;
+        stroke-dasharray: 5 3;
+        filter: drop-shadow(0 0 1px var(--color-white));
+    }
+
+    .sliding-door-builder .builder-preview-panel-highlight.is-selected {
+        visibility: visible;
+    }
+
+    .sliding-door-builder .builder-preview-panel,
+    .sliding-door-builder .builder-preview-frame {
+        cursor: pointer;
+    }
+
+    .sliding-door-builder .builder-preview-selector:focus-visible {
+        outline: 2px solid var(--builder-accent);
+        outline-offset: 2px;
+    }
+
+    .sliding-door-builder .builder-preview-selector {
+        min-height: 2.75rem;
+        min-width: 2.75rem;
+        touch-action: manipulation;
+    }
+
+    .sliding-door-builder .builder-preview-selector[aria-pressed='true'] {
+        box-shadow: 0 0 0 2px var(--builder-accent);
+    }
+
+    .sliding-door-builder .builder-preview-frame {
+        filter: drop-shadow(0 0 1px var(--builder-frame-edge));
+    }
+
     .sliding-door-builder .builder-preview {
         order: -1;
     }
@@ -133,6 +212,10 @@
 
         .sliding-door-builder .builder-preview .fi-empty-state {
             min-height: 22rem;
+        }
+
+        .sliding-door-builder .builder-preview-canvas {
+            height: 26rem;
         }
     }
 }

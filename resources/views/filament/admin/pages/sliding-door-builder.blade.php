@@ -2,7 +2,7 @@
     <div
         x-load
         x-load-src="{{ \Illuminate\Support\Facades\Vite::asset('resources/js/sliding-door-builder.js') }}"
-        x-data="slidingDoorBuilder({ initialStep: {{ $initialStep->value }}, payload: @js($builderPayload) })"
+        x-data="slidingDoorBuilder({ initialStep: {{ $initialStep->value }}, payload: @js($builderPayload), previewLabels: @js(__('sliding_door_builder.preview')) })"
         class="sliding-door-builder grid grid-cols-1 gap-4 sm:gap-6"
     >
         @if ($builderPayload->catalog->models === [])
