@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
+import { reconcilePreviewConfiguration } from '../../resources/js/sliding-door-selection.js';
 import { createPreviewScene } from '../../resources/js/sliding-door-preview.js';
 
 function metadata() {
@@ -72,3 +73,54 @@ test('incomplete geometry does not produce a fabricated preview', () => {
     input.openingWidth = 0;
     assert.throws(() => createPreviewScene(input, metadata(), { width: 800, height: 500 }), RangeError);
 });
+
+// Exercise the builder configuration path, not just the generic geometry API.
+for (const [name, width, height, weights] of [
+    ['full', 3000, 2400, [1]],
+    ['two equal', 2400, 2400, [1, 1]],
+    ['three equal', 1200, 2600, [1, 1, 1]],
+    ['unequal', 4200, 1800, [1, 2, 1]],
+    ['extremely wide', 1000000, 1, [1, 1, 1]],
+    ['extremely tall', 1, 1000000, [1, 1]],
+]) {
+    for (const viewport of [{ width: 300, height: 360 }, { width: 1000, height: 500 }]) {
+        test(`${name} builder layout retains two doors, proportions and bounds at ${viewport.width}px`, () => {
+            let id = 0;
+            const input = reconcilePreviewConfiguration({
+                openingWidth: width, openingHeight: height, panelWeights: weights,
+                // Conflicting generic inputs must not override the builder's two-door rule.
+                doorCount: 5, panelWeightsByDoor: [[1]],
+            }, null, () => `geometry-${++id}`);
+            const scene = createPreviewScene(input, metadata(), viewport);
+            const close = (actual, expected) => assert.ok(
+                Math.abs(actual - expected) <= 1e-12 * Math.max(Math.abs(expected), Number.MIN_VALUE),
+                `${actual} differs from ${expected}`,
+            );
+            const contains = (outer, inner) => {
+                const tolerance = 1e-10;
+                for (const key of ['x', 'y', 'width', 'height']) assert.ok(Number.isFinite(inner[key]));
+                assert.ok(inner.width > 0 && inner.height > 0);
+                assert.ok(inner.x >= outer.x - tolerance && inner.y >= outer.y - tolerance);
+                assert.ok(inner.x + inner.width <= outer.x + outer.width + tolerance);
+                assert.ok(inner.y + inner.height <= outer.y + outer.height + tolerance);
+            };
+            assert.equal(scene.doors.length, 2);
+            assert.deepEqual(scene.doors.map(door => door.panels.length), [weights.length, weights.length]);
+            close(scene.opening.width / scene.opening.height, width / height);
+            contains({ x: 48, y: 48, width: viewport.width - 96, height: viewport.height - 96 }, scene.opening);
+            close(scene.doors[0].x + scene.doors[0].width, scene.doors[1].x);
+            close(scene.doors[1].x + scene.doors[1].width, scene.opening.x + scene.opening.width);
+            for (const door of scene.doors) {
+                contains(scene.opening, door);
+                close(door.width / scene.opening.width, 0.5);
+                close(door.panels.reduce((sum, panel) => sum + panel.height, 0), door.height);
+                for (const [index, panel] of door.panels.entries()) {
+                    contains(door, panel);
+                    assert.equal(panel.id, input.panelIdsByDoor[door.index][index]);
+                    close(panel.height / door.height, weights[index] / weights.reduce((a, b) => a + b, 0));
+                    if (index > 0) close(door.panels[index - 1].y + door.panels[index - 1].height, panel.y);
+                }
+            }
+        });
+    }
+}

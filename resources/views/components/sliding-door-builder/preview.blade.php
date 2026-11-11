@@ -1,4 +1,4 @@
-<x-filament::section :heading="__('sliding_door_builder.preview.title')" class="builder-preview">
+<x-filament::section :heading="__('sliding_door_builder.preview.title')" class="builder-preview" x-id="['builder-preview-drawing']">
     <p class="sr-only" role="status" aria-live="polite" aria-atomic="true" x-text="previewSelectionAnnouncement"></p>
     <div
         x-show="hasPreview"
@@ -14,6 +14,7 @@
                     class="builder-preview-selector"
                     x-on:click="selectPreviewDoor(door.id)"
                     x-bind:aria-pressed="previewSelection.doorId === door.id"
+                    x-bind:aria-controls="$id('builder-preview-drawing')"
                     x-bind:data-preview-door-control="door.id"
                 >
                     <span x-text="previewDoorLabel(door.index)"></span>
@@ -34,6 +35,7 @@
                     class="builder-preview-selector"
                     x-on:click="selectPreviewPanel(selectedPreviewDoor.id, panel.id)"
                     x-bind:aria-pressed="previewSelection.panelId === panel.id"
+                    x-bind:aria-controls="$id('builder-preview-drawing')"
                     x-bind:aria-label="previewPanelAccessibleLabel(panel.index)"
                     x-bind:data-preview-panel-control="panel.id"
                 >
@@ -47,6 +49,7 @@
             x-show="hasPreview"
             x-cloak
             role="img"
+            x-bind:id="$id('builder-preview-drawing')"
             aria-label="{{ __('sliding_door_builder.preview.drawing_label') }}"
             class="builder-preview-svg"
             wire:ignore
