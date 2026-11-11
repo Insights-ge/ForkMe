@@ -1,12 +1,22 @@
 import { calculateDoorGeometry } from './sliding-door-geometry.js';
 
-/** Add stable instance identities without changing layouts, finishes or measurements. */
+const DOOR_COUNT = 2;
+
+/** Two doors share one panel layout; identities and finishes remain independent. */
 export function reconcilePreviewConfiguration(configuration, previous, createId = () => globalThis.crypto.randomUUID()) {
     if (configuration === null) {
         return null;
     }
 
-    calculateDoorGeometry(configuration);
+    if (!Array.isArray(configuration.panelWeights)) {
+        throw new RangeError('The builder requires one shared panel layout.');
+    }
+    const geometryConfiguration = {
+        ...configuration,
+        doorCount: DOOR_COUNT,
+        panelWeightsByDoor: Array.from({ length: DOOR_COUNT }, () => [...configuration.panelWeights]),
+    };
+    calculateDoorGeometry(geometryConfiguration);
     if ((configuration.doorIds !== undefined && !Array.isArray(configuration.doorIds))
         || (configuration.panelIdsByDoor !== undefined && !Array.isArray(configuration.panelIdsByDoor))) {
         throw new RangeError('Instance IDs must be supplied as arrays.');
@@ -16,7 +26,7 @@ export function reconcilePreviewConfiguration(configuration, previous, createId 
     const seenDoors = new Set();
     const seenPanels = new Set();
 
-    for (let index = 0; index < configuration.doorCount; index++) {
+    for (let index = 0; index < DOOR_COUNT; index++) {
         const id = configuration.doorIds?.[index] ?? previous?.doorIds?.[index] ?? createId();
         requireIdentity(id, seenDoors);
         doorIds.push(id);
@@ -25,7 +35,7 @@ export function reconcilePreviewConfiguration(configuration, previous, createId 
         if (configuration.panelIdsByDoor?.[index] !== undefined && !Array.isArray(configuration.panelIdsByDoor[index])) {
             throw new RangeError('Panel instance IDs must be supplied as arrays.');
         }
-        const panelIds = configuration.panelWeightsByDoor[index].map((_, panelIndex) => {
+        const panelIds = configuration.panelWeights.map((_, panelIndex) => {
             const panelId = configuration.panelIdsByDoor?.[index]?.[panelIndex]
                 ?? previous?.panelIdsByDoor?.[previousIndex]?.[panelIndex]
                 ?? createId();
@@ -35,11 +45,20 @@ export function reconcilePreviewConfiguration(configuration, previous, createId 
         panelIdsByDoor.push(panelIds);
     }
 
-    if (sameIdentities(configuration, doorIds, panelIdsByDoor)) {
+    if (sameIdentities(configuration, doorIds, panelIdsByDoor) && sameGeometry(configuration, geometryConfiguration)) {
         return configuration;
     }
 
-    return { ...configuration, doorIds, panelIdsByDoor };
+    return { ...geometryConfiguration, doorIds, panelIdsByDoor };
+}
+
+function sameGeometry(configuration, derived) {
+    return configuration.doorCount === DOOR_COUNT
+        && Array.isArray(configuration.panelWeightsByDoor)
+        && configuration.panelWeightsByDoor.length === DOOR_COUNT
+        && derived.panelWeightsByDoor.every((weights, index) => Array.isArray(configuration.panelWeightsByDoor[index])
+            && weights.length === configuration.panelWeightsByDoor[index].length
+            && weights.every((weight, panelIndex) => weight === configuration.panelWeightsByDoor[index][panelIndex]));
 }
 
 export function previewSelectionTargets(configuration) {

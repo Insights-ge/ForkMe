@@ -13,7 +13,13 @@ export default function slidingDoorBuilder({ initialStep, payload, previewLabels
         activeStep: initialStep,
         catalog: payload.catalog,
         metadata: payload.metadata,
-        previewConfiguration: null,
+        // Temporary initial design until size and layout inputs are connected.
+        previewConfiguration: {
+            openingWidth: 3000,
+            openingHeight: 2400,
+            frameColor: 'black',
+            panelWeights: [1, 1, 1],
+        },
         hasPreview: false,
         previewDoors: [],
         previewSelection: { doorId: null, panelId: null },
