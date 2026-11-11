@@ -138,3 +138,25 @@ test('finish edits update only the selected panel and render mapped or neutral f
     assert.deepEqual(builder.previewConfiguration.doorIds, original.doorIds);
     assert.deepEqual(builder.previewConfiguration.panelIdsByDoor, original.panelIdsByDoor);
 });
+
+
+test('bulk finish and door copy actions keep independent arrays and stable identities', () => {
+    const builder = editingBuilder();
+    const ids = structuredClone(builder.previewConfiguration.panelIdsByDoor);
+    builder.chooseInfill(7);
+    builder.applyFinishToAllDoors();
+    assert.deepEqual(builder.previewConfiguration.infillIdsByDoor, [[7,7,7], [7,7,7]]);
+    builder.selectPreviewPanel(builder.previewDoors[0].id, builder.previewDoors[0].panels[1].id);
+    builder.chooseInfill(8);
+    builder.copySelectedDoor();
+    assert.deepEqual(builder.previewConfiguration.infillIdsByDoor, [[7,8,7], [7,8,7]]);
+    assert.notEqual(builder.previewConfiguration.infillIdsByDoor[0], builder.previewConfiguration.infillIdsByDoor[1]);
+    builder.chooseInfill(null);
+    assert.deepEqual(builder.previewConfiguration.infillIdsByDoor, [[7,null,7], [7,8,7]]);
+    assert.deepEqual(builder.previewConfiguration.panelIdsByDoor, ids);
+    builder.clearPreviewSelection();
+    const before = builder.previewConfiguration;
+    builder.copySelectedDoor();
+    builder.applyFinishToAllDoors();
+    assert.equal(builder.previewConfiguration, before);
+});

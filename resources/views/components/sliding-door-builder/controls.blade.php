@@ -67,6 +67,20 @@
                             </template>
                         </div>
                     </fieldset>
+                    <div class="mt-6 space-y-3">
+                        <div>
+                            <x-filament::button color="gray" class="builder-preview-selector" x-bind:disabled="!selectedPreviewPanel" x-on:click="applyFinishToAllDoors()" data-apply-finish-all>
+                                {{ __('sliding_door_builder.finishes.apply_all') }}
+                            </x-filament::button>
+                            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{{ __('sliding_door_builder.finishes.apply_all_description') }}</p>
+                        </div>
+                        <div>
+                            <x-filament::button color="gray" class="builder-preview-selector" x-bind:disabled="!selectedPreviewDoor" x-on:click="copySelectedDoor()" data-copy-door>
+                                {{ __('sliding_door_builder.finishes.copy_door') }}
+                            </x-filament::button>
+                            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{{ __('sliding_door_builder.finishes.copy_description') }}</p>
+                        </div>
+                    </div>
                 @endif
             </x-filament::section>
         </div>

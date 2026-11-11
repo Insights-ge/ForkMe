@@ -18,6 +18,11 @@ return [
         'three_horizontal_panels' => 'Three equal horizontal panels',
     ],
     'finishes' => [
+        'apply_all' => 'Apply finish to all doors',
+        'apply_all_description' => 'Use the selected finish on every panel of both doors.',
+        'copy_door' => 'Copy this door',
+        'copy_description' => 'Copy all panel finishes from the selected door to the other door.',
+
         'title' => 'Panel finish',
         'select_panel' => 'Select a door and panel in the preview to edit its finish.',
         'unselected' => 'No finish selected',

@@ -50,6 +50,26 @@ export default function slidingDoorBuilder({ initialStep, payload, previewLabels
             }
         },
 
+        applyFinishToAllDoors() {
+            if (!this.selectedPreviewPanel) {
+                return;
+            }
+            const infillIdsByDoor = this.previewDoors.map((door) => door.panels.map(() => this.paletteInfillId));
+            this.previewConfiguration = { ...this.previewConfiguration, infillIdsByDoor };
+        },
+
+        copySelectedDoor() {
+            const door = this.selectedPreviewDoor;
+            if (!door) {
+                return;
+            }
+            const finishes = door.panels.map((panel) => this.previewConfiguration.infillIdsByDoor?.[door.index]?.[panel.index] ?? null);
+            this.previewConfiguration = {
+                ...this.previewConfiguration,
+                infillIdsByDoor: this.previewDoors.map(() => [...finishes]),
+            };
+        },
+
         get selectedLayoutId() {
             const weights = this.previewConfiguration?.panelWeights;
             return this.metadata.layoutPresets?.find((preset) => weights?.length === preset.panelWeights.length
