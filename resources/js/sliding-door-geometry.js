@@ -35,6 +35,64 @@ export function calculateDoorGeometry({ openingWidth, openingHeight, doorCount, 
     };
 }
 
+/**
+ * Fit calculated geometry into a viewport using one uniform scale.
+ * Padding is reserved on every side; unused space centers the design.
+ * Thin dimensions are not clamped to a minimum pixel size, as that would
+ * distort extreme aspect ratios. Input geometry remains unchanged.
+ *
+ * @param {{ opening: Rectangle, doors: DoorGeometry[] }} geometry Output of calculateDoorGeometry.
+ * @param {{ width: number, height: number, padding?: number }} viewport
+ * @returns {{ viewport: { width: number, height: number, padding: number }, scale: number, opening: Rectangle, doors: DoorGeometry[] }}
+ * @throws {RangeError} When the viewport has no usable area or projected dimensions are unrepresentable.
+ */
+export function fitDoorGeometry(geometry, { width, height, padding = 0 }) {
+    requirePositiveFinite(width);
+    requirePositiveFinite(height);
+    requirePositiveFinite(geometry.opening.width);
+    requirePositiveFinite(geometry.opening.height);
+
+    if (!Number.isFinite(padding) || padding < 0) {
+        throw new RangeError('Viewport padding must be finite and nonnegative.');
+    }
+
+    const availableWidth = width - 2 * padding;
+    const availableHeight = height - 2 * padding;
+    requirePositiveFinite(availableWidth);
+    requirePositiveFinite(availableHeight);
+
+    const scale = Math.min(availableWidth / geometry.opening.width, availableHeight / geometry.opening.height);
+    requirePositiveFinite(scale);
+    const offsetX = padding + (availableWidth - geometry.opening.width * scale) / 2;
+    const offsetY = padding + (availableHeight - geometry.opening.height * scale) / 2;
+    const project = (rectangle) => projectRectangle(rectangle, geometry.opening, scale, offsetX, offsetY);
+
+    return {
+        viewport: { width, height, padding },
+        scale,
+        opening: project(geometry.opening),
+        doors: geometry.doors.map((door) => ({
+            ...door,
+            ...project(door),
+            panels: door.panels.map((panel) => ({ ...panel, ...project(panel) })),
+        })),
+    };
+}
+
+function projectRectangle(rectangle, opening, scale, offsetX, offsetY) {
+    const width = rectangle.width * scale;
+    const height = rectangle.height * scale;
+    requirePositiveFinite(width);
+    requirePositiveFinite(height);
+
+    return {
+        x: offsetX + (rectangle.x - opening.x) * scale,
+        y: offsetY + (rectangle.y - opening.y) * scale,
+        width,
+        height,
+    };
+}
+
 function calculateDoor(index, count, openingWidth, weights) {
     const x = openingWidth * (index / count);
     const right = openingWidth * ((index + 1) / count);
