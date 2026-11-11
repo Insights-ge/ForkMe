@@ -37,7 +37,11 @@ test('admins and super admins can open the builder using their session locale', 
         ->get(SlidingDoorBuilder::getUrl(panel: 'admin'))
         ->assertOk()
         ->assertSeeLivewire(SlidingDoorBuilder::class)
-        ->assertSee('Sliding door builder')
+        ->assertSee(__('sliding_door_builder.title', [], $locale))
+        ->assertSee(__('sliding_door_builder.steps.opening.label', [], $locale))
+        ->assertSee(__('sliding_door_builder.preview.title', [], $locale))
+        ->assertSee(__('sliding_door_builder.summary.title', [], $locale))
+        ->assertDontSee('Demo in development')
         ->assertSee('lang="' . $locale . '"', false);
 
     Livewire::test(SlidingDoorBuilder::class)

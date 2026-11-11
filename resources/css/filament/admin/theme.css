@@ -14,6 +14,7 @@
 
 @source '../../../../app/Filament/**/*';
 @source '../../../../resources/views/filament/**/*';
+@source '../../../../resources/views/components/sliding-door-builder/**/*';
 @source '../../../../vendor/bezhansalleh/filament-language-switch/resources/views/**/*.blade.php';
 @source '../../../../vendor/jeffgreco13/filament-breezy/resources/**/*';
 @source '../../../../vendor/diogogpinto/filament-auth-ui-enhancer/resources/**/*.blade.php';
