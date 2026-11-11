@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { reconcilePreviewConfiguration } from '../../resources/js/sliding-door-selection.js';
+import { reconcilePreviewConfiguration, reconcilePreviewSelection, previewSelectionTargets } from '../../resources/js/sliding-door-selection.js';
 import { createPreviewScene } from '../../resources/js/sliding-door-preview.js';
 import slidingDoorBuilder from '../../resources/js/sliding-door-builder.js';
 
@@ -159,4 +159,32 @@ test('bulk finish and door copy actions keep independent arrays and stable ident
     builder.copySelectedDoor();
     builder.applyFinishToAllDoors();
     assert.equal(builder.previewConfiguration, before);
+});
+
+
+test('layout remapping preserves corresponding finishes and never resurrects removed panels', () => {
+    const builder = editingBuilder();
+    builder.previewConfiguration.infillIdsByDoor = [[7,8,7], [8,7,8]];
+    const original = structuredClone(builder.previewConfiguration);
+    builder.selectPreviewPanel(builder.previewDoors[1].id, builder.previewDoors[1].panels[2].id);
+    builder.selectLayout('two_horizontal_panels');
+    let config = reconcilePreviewConfiguration(builder.previewConfiguration, original, () => 'unused');
+    assert.deepEqual(config.infillIdsByDoor, [[7,8], [8,7]]);
+    assert.deepEqual(config.panelIdsByDoor, original.panelIdsByDoor.map(ids => ids.slice(0,2)));
+    const selection = reconcilePreviewSelection(builder.previewSelection, previewSelectionTargets(config));
+    assert.deepEqual(selection, { doorId: original.doorIds[1], panelId: null });
+    builder.previewConfiguration = config;
+    builder.selectLayout('full_panel');
+    config = reconcilePreviewConfiguration(builder.previewConfiguration, config, () => 'unused');
+    builder.previewConfiguration = config;
+    builder.selectLayout('three_horizontal_panels');
+    let id = 0;
+    const expanded = reconcilePreviewConfiguration(builder.previewConfiguration, config, () => `new-${++id}`);
+    assert.deepEqual(expanded.infillIdsByDoor, [[7,null,null], [8,null,null]]);
+    assert.deepEqual(expanded.doorIds, original.doorIds);
+    for (let index = 0; index < 2; index++) {
+        assert.equal(expanded.panelIdsByDoor[index][0], original.panelIdsByDoor[index][0]);
+        assert.ok(!original.panelIdsByDoor.flat().includes(expanded.panelIdsByDoor[index][1]));
+        assert.ok(!original.panelIdsByDoor.flat().includes(expanded.panelIdsByDoor[index][2]));
+    }
 });

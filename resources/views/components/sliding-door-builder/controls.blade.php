@@ -18,6 +18,7 @@
                         </legend>
                         <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
                             {{ __('sliding_door_builder.layouts.shared_description') }}
+                            {{ __('sliding_door_builder.layouts.remapping_description') }}
                         </p>
                         <div class="mt-3 flex flex-wrap gap-2">
                             <template x-for="preset in metadata.layoutPresets" :key="preset.id">

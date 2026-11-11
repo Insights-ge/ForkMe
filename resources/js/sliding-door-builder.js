@@ -81,7 +81,19 @@ export default function slidingDoorBuilder({ initialStep, payload, previewLabels
             if (!preset || !this.previewConfiguration || this.selectedLayoutId === layoutId) {
                 return;
             }
-            this.previewConfiguration = { ...this.previewConfiguration, panelWeights: [...preset.panelWeights] };
+            const configuration = this.previewConfiguration;
+            // Corresponding panels are matched by their top-to-bottom position.
+            // Trim discarded values so increasing the count cannot revive removed finishes.
+            this.previewConfiguration = {
+                ...configuration,
+                panelWeights: [...preset.panelWeights],
+                panelIdsByDoor: configuration.panelIdsByDoor?.map((ids) => ids.slice(0, preset.panelWeights.length)),
+                infillIdsByDoor: Array.from({ length: 2 }, (_, doorIndex) => preset.panelWeights.map((_, panelIndex) => (
+                    panelIndex < configuration.panelWeights.length
+                        ? configuration.infillIdsByDoor?.[doorIndex]?.[panelIndex] ?? null
+                        : null
+                ))),
+            };
         },
 
         get selectedPreviewDoor() {
