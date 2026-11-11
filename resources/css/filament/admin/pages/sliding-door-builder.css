@@ -137,6 +137,18 @@
         stroke: var(--builder-accent);
     }
 
+    .sliding-door-builder .builder-preview-door-label {
+        fill: currentColor;
+        font-family: var(--font-sans);
+        font-size: 12px;
+    }
+
+    .sliding-door-builder .builder-preview-door.is-selected > .builder-preview-door-label {
+        fill: var(--builder-accent);
+        font-weight: 700;
+        text-decoration: underline;
+    }
+
     .sliding-door-builder .builder-preview-panel-highlight {
         visibility: hidden;
         pointer-events: none;

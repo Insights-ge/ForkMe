@@ -91,6 +91,15 @@ function drawScene(svg, scene, configuration, labels, locale) {
             'data-door-index': door.index, 'data-door-id': door.id,
             class: 'builder-preview-door',
         });
+        // Keep labels readable without changing the geometry of very narrow doors.
+        if (door.width >= 64) {
+            text(group, door.x + door.width / 2, door.y - 12,
+                labels.door_label.replace(':number', String(door.index + 1)), {
+                    class: 'builder-preview-door-label',
+                    'aria-hidden': 'true',
+                    'pointer-events': 'none',
+                });
+        }
         for (const panel of door.panels) {
             element(group, 'rect', {
                 ...rectangleAttributes(panel),
