@@ -2,6 +2,7 @@
 
 use App\Data\BuilderCatalogData;
 use App\Data\BuilderComponentCompatibilityData;
+use App\Data\BuilderDoorVariantData;
 use App\Enums\ComponentType;
 use App\Enums\DoorColor;
 use App\Enums\DoorModelStatus;
@@ -34,7 +35,9 @@ test('the catalog contains only active models and their variants', function () {
         ->and($model->variants[0]->id)->toBe($variant->id)
         ->and($model->variants[0]->color)->toBe(DoorColor::Black)
         ->and($model->variants[0]->heightRangeMin)->toBe($variant->height_range_min)
-        ->and($model->variants[0]->heightRangeMax)->toBe($variant->height_range_max);
+        ->and($model->variants[0]->heightRangeMax)->toBe($variant->height_range_max)
+        ->and($model->variants[0]->hasPartition)->toBeTrue()
+        ->and($model->variants[0]->hasSoftCloseMechanism)->toBeTrue();
 });
 
 test('component exclusions are preserved without excluding infills from the catalog', function () {
@@ -43,6 +46,8 @@ test('component exclusions are preserved without excluding infills from the cata
     $allowed = Infill::factory()->create();
     $variant->sideProfile->incompatibleInfills()->attach($excluded);
     $variant->partition->incompatibleInfills()->attach($allowed);
+    $variant->bottomRail->incompatibleInfills()->attach([$allowed->id, $excluded->id]);
+    $variant->softCloseMechanism->incompatibleInfills()->attach($excluded);
 
     $catalog = app(BuilderCatalogReadService::class)->read();
     $components = collect($catalog->models[0]->variants[0]->components)->keyBy(fn (BuilderComponentCompatibilityData $component): string => $component->type->value);
@@ -50,6 +55,8 @@ test('component exclusions are preserved without excluding infills from the cata
     expect($components[ComponentType::SideProfile->value]->incompatibleInfillIds)->toBe([$excluded->id]);
     expect($components[ComponentType::Partition->value]->incompatibleInfillIds)->toBe([$allowed->id]);
     expect($components[ComponentType::TopRail->value]->incompatibleInfillIds)->toBe([]);
+    expect($components[ComponentType::BottomRail->value]->incompatibleInfillIds)->toBe([$excluded->id, $allowed->id]);
+    expect($components[ComponentType::SoftCloseMechanism->value]->incompatibleInfillIds)->toBe([$excluded->id]);
     expect($components[ComponentType::SoftCloseMechanism->value]->id)->toBe($variant->soft_close_mechanism_component_id);
     expect(array_column($catalog->infills, 'id'))->toEqualCanonicalizing([$excluded->id, $allowed->id]);
 });
@@ -68,7 +75,50 @@ test('models without variants and variants without partitions remain readable', 
     expect($models[$empty->id]->notRecommendedHeightMax)->toBeNull();
     expect(array_column($models[$variant->door_model_id]->variants[0]->components, 'type'))
         ->not->toContain(ComponentType::Partition);
+    expect($models[$variant->door_model_id]->variants[0]->hasPartition)->toBeFalse();
+    expect($models[$variant->door_model_id]->variants[0]->hasSoftCloseMechanism)->toBeTrue();
 });
+
+test('each variant retains its own height range within the same model', function () {
+    $model = DoorModel::factory()->create(['min_height' => 800, 'max_height' => 2600]);
+    $lower = DoorVariant::factory()->for($model)->create(['height_range_min' => 1600, 'height_range_max' => 2000]);
+    $upper = DoorVariant::factory()->for($model)->create(['height_range_min' => 2001, 'height_range_max' => 2500]);
+
+    $variants = collect(app(BuilderCatalogReadService::class)->read()->models[0]->variants)->keyBy('id');
+
+    expect([$variants[$lower->id]->heightRangeMin, $variants[$lower->id]->heightRangeMax])->toBe([1600, 2000]);
+    expect([$variants[$upper->id]->heightRangeMin, $variants[$upper->id]->heightRangeMax])->toBe([2001, 2500]);
+});
+
+test('variant availability is serialized from the components actually present', function (array $types) {
+    $components = array_map(
+        fn (ComponentType $type): BuilderComponentCompatibilityData => new BuilderComponentCompatibilityData(
+            id: 1,
+            type: $type,
+            incompatibleInfillIds: [],
+        ),
+        $types,
+    );
+    $variant = new BuilderDoorVariantData(
+        id: 1,
+        name: 'System',
+        color: DoorColor::Black,
+        frameDesignCode: 'Frame',
+        heightRangeMin: 1600,
+        heightRangeMax: 2000,
+        components: $components,
+    );
+
+    $serialized = json_decode(json_encode($variant, JSON_THROW_ON_ERROR), true, flags: JSON_THROW_ON_ERROR);
+
+    expect($serialized['hasPartition'])->toBe(in_array(ComponentType::Partition, $types, true));
+    expect($serialized['hasSoftCloseMechanism'])->toBe(in_array(ComponentType::SoftCloseMechanism, $types, true));
+})->with([
+    'neither component' => [[]],
+    'partition only' => [[ComponentType::Partition]],
+    'soft close only' => [[ComponentType::SoftCloseMechanism]],
+    'both components' => [[ComponentType::Partition, ComponentType::SoftCloseMechanism]],
+]);
 
 test('an empty database returns an empty catalog', function () {
     $catalog = app(BuilderCatalogReadService::class)->read();
