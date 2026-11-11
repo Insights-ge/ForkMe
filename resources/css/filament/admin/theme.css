@@ -11,6 +11,7 @@
 @import './widget/index.css';
 @import './panel/index.css';
 @import './compact/index.css';
+@import './pages/sliding-door-builder.css';
 
 @source '../../../../app/Filament/**/*';
 @source '../../../../resources/views/filament/**/*';
