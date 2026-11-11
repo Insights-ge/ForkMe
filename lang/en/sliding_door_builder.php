@@ -11,6 +11,8 @@ return [
         'no_infills_description' => 'Panel finishes are currently unavailable. Please try again later.',
     ],
     'layouts' => [
+        'title' => 'Shared layout',
+        'shared_description' => 'Applies to both doors.',
         'full_panel' => 'Full panel',
         'two_horizontal_panels' => 'Two equal horizontal panels',
         'three_horizontal_panels' => 'Three equal horizontal panels',
@@ -26,7 +28,7 @@ return [
         ],
         'panels' => [
             'label' => 'Layouts and finishes',
-            'description' => 'Choose a layout and panel finishes for each door.',
+            'description' => 'Choose a shared layout and panel finishes for each door.',
         ],
         'review' => [
             'label' => 'Review',
