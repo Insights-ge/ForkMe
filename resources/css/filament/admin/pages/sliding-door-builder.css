@@ -4,6 +4,9 @@
         --builder-preview-surface: var(--gray-50);
 
         min-width: 0;
+        width: 100%;
+        max-width: 100%;
+        container: sliding-door-builder / inline-size;
     }
 
     .sliding-door-builder:where(.dark, .dark *) {
@@ -13,24 +16,34 @@
 
     .sliding-door-builder .builder-step-navigation {
         min-width: 0;
-        overflow-x: auto;
         padding: 0.25rem;
-        scrollbar-width: thin;
     }
 
     .sliding-door-builder .builder-step-navigation .fi-tabs {
         width: 100%;
-        min-width: max-content;
+        min-width: 0;
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 0.375rem;
         padding: 0.375rem;
         border-radius: var(--insights-theme-radius-container);
     }
 
     .sliding-door-builder .builder-step-navigation .fi-tabs-item {
-        flex: 1;
-        justify-content: center;
-        padding: 0.625rem 0.875rem;
+        min-width: 0;
+        justify-content: start;
+        padding: 0.625rem;
         border-radius: var(--insights-theme-radius-small);
+    }
+
+    .sliding-door-builder .builder-step-navigation .fi-tabs-item-label {
+        white-space: normal;
+        overflow-wrap: anywhere;
+        text-align: start;
+    }
+
+    .sliding-door-builder .builder-step-navigation .fi-badge {
+        flex-shrink: 0;
     }
 
     .sliding-door-builder .builder-step-navigation .fi-tabs-item.fi-active {
@@ -42,13 +55,15 @@
         outline-offset: 2px;
     }
 
-    .sliding-door-builder .builder-workspace,
-    .sliding-door-builder .builder-design {
+    .sliding-door-builder .builder-workspace {
         min-width: 0;
+        grid-template-columns: minmax(0, 1fr);
     }
 
     .sliding-door-builder .builder-workspace > * {
         min-width: 0;
+        max-width: 100%;
+        overflow-wrap: anywhere;
     }
 
     .sliding-door-builder .fi-section-header {
@@ -78,11 +93,11 @@
     .sliding-door-builder .builder-preview .fi-empty-state {
         display: grid;
         align-items: center;
-        min-height: 16rem;
+        min-height: 12rem;
     }
 
-    .sliding-door-builder .builder-summary .fi-empty-state {
-        padding-block: 1rem;
+    .sliding-door-builder .builder-preview {
+        order: -1;
     }
 
     .sliding-door-builder .fi-empty-state-description {
@@ -91,7 +106,31 @@
         line-height: var(--insights-theme-leading-reading);
     }
 
-    @media (width >= 80rem) {
+    @container sliding-door-builder (width >= 48rem) {
+        .sliding-door-builder .builder-step-navigation .fi-tabs {
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+        }
+    }
+
+    @container sliding-door-builder (width >= 56rem) {
+        .sliding-door-builder .builder-workspace {
+            grid-template-columns: minmax(0, 1fr) minmax(0, 1.35fr);
+        }
+
+        .sliding-door-builder .builder-controls {
+            grid-column: 1;
+            grid-row: 1 / span 2;
+        }
+
+        .sliding-door-builder .builder-preview,
+        .sliding-door-builder .builder-summary {
+            grid-column: 2;
+        }
+
+        .sliding-door-builder .builder-preview {
+            order: 0;
+        }
+
         .sliding-door-builder .builder-preview .fi-empty-state {
             min-height: 22rem;
         }
