@@ -52,11 +52,6 @@ class ComponentResource extends Resource
         ];
     }
 
-    public static function getNavigationGroup(): ?string
-    {
-        return __('catalog.navigation_group');
-    }
-
     public static function getNavigationLabel(): string
     {
         return __('components.layout.components');

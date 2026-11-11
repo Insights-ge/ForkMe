@@ -13,6 +13,8 @@ class SlidingDoorBuilder extends Page
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedWrenchScrewdriver;
 
+    protected static ?int $navigationSort = 0;
+
     protected string $view = 'filament.admin.pages.sliding-door-builder';
 
     public static function getNavigationLabel(): string

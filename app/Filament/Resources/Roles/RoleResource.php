@@ -18,6 +18,11 @@ use Override;
 
 class RoleResource extends ShieldRoleResource
 {
+    public static function getNavigationGroup(): ?string
+    {
+        return __('navigation.administration');
+    }
+
     #[Override]
     public static function hasTitleCaseModelLabel(): bool
     {
