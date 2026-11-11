@@ -2,7 +2,10 @@
 
 namespace App\Filament\Pages;
 
+use App\Data\BuilderBrowserPayloadData;
 use App\Enums\SlidingDoorBuilderStep;
+use App\Services\BuilderCatalogReadService;
+use App\Services\BuilderMetadataReadService;
 use BackedEnum;
 use BezhanSalleh\FilamentShield\Traits\HasPageShield;
 use Filament\Pages\Page;
@@ -29,13 +32,17 @@ class SlidingDoorBuilder extends Page
     }
 
     /**
-     * @return array{steps: list<SlidingDoorBuilderStep>, initialStep: SlidingDoorBuilderStep}
+     * @return array{steps: list<SlidingDoorBuilderStep>, initialStep: SlidingDoorBuilderStep, builderPayload: BuilderBrowserPayloadData}
      */
     protected function getViewData(): array
     {
         return [
             'steps' => SlidingDoorBuilderStep::cases(),
             'initialStep' => SlidingDoorBuilderStep::Size,
+            'builderPayload' => new BuilderBrowserPayloadData(
+                catalog: app(BuilderCatalogReadService::class)->read(),
+                metadata: app(BuilderMetadataReadService::class)->read(),
+            ),
         ];
     }
 }
