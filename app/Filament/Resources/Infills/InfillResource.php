@@ -25,11 +25,6 @@ class InfillResource extends Resource
 
     protected static ?int $navigationSort = 25;
 
-    public static function getNavigationGroup(): ?string
-    {
-        return __('catalog.navigation_group');
-    }
-
     public static function getModelLabel(): string
     {
         return __('infills.singular');

@@ -68,11 +68,6 @@ class DoorVariantResource extends Resource
         ];
     }
 
-    public static function getNavigationGroup(): ?string
-    {
-        return __('catalog.navigation_group');
-    }
-
     public static function getNavigationLabel(): string
     {
         return __('door_variants.layout.door_variants');
