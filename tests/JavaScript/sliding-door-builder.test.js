@@ -229,3 +229,67 @@ test('stale confirmations cannot overwrite a newer design', () => {
     assert.equal(builder.previewConfiguration, newer);
     assert.equal(builder.pendingChange, null);
 });
+
+for (const sourceIndex of [0, 1]) {
+    test(`copying door ${sourceIndex + 1} preserves source and target identities and only replaces target finishes`, () => {
+        const builder = editingBuilder();
+        builder.previewConfiguration.infillIdsByDoor = [[7,null,8], [8,7,null]];
+        const before = structuredClone(builder.previewConfiguration);
+        builder.selectPreviewDoor(builder.previewDoors[sourceIndex].id);
+        builder.copySelectedDoor();
+        assert.deepEqual(builder.previewConfiguration, before);
+        builder.confirmConfigurationChange();
+        const expected = before.infillIdsByDoor[sourceIndex];
+        assert.deepEqual(builder.previewConfiguration.infillIdsByDoor, [expected, expected]);
+        assert.deepEqual(builder.previewConfiguration.doorIds, before.doorIds);
+        assert.deepEqual(builder.previewConfiguration.panelIdsByDoor, before.panelIdsByDoor);
+        assert.deepEqual(builder.previewConfiguration.panelWeights, before.panelWeights);
+        assert.deepEqual(builder.previewSelection, { doorId: before.doorIds[sourceIndex], panelId: null });
+    });
+}
+
+test('matching finishes and empty targets do not prompt for a replacement', () => {
+    const builder = editingBuilder();
+    const events = [];
+    builder.$dispatch = name => events.push(name);
+    builder.chooseInfill(7);
+    builder.copySelectedDoor();
+    assert.deepEqual(builder.previewConfiguration.infillIdsByDoor, [[7,null,null], [7,null,null]]);
+    builder.copySelectedDoor();
+    builder.applyFinishToAllDoors();
+    assert.deepEqual(builder.previewConfiguration.infillIdsByDoor, [[7,7,7], [7,7,7]]);
+    assert.equal(builder.pendingChange, null);
+    assert.deepEqual(events, []);
+});
+
+test('clearing all finishes is protected and cancelling a smaller layout retains IDs and choices', () => {
+    const builder = editingBuilder();
+    builder.previewConfiguration.infillIdsByDoor = [[null,7,8], [8,null,7]];
+    const before = structuredClone(builder.previewConfiguration);
+    builder.selectLayout('full_panel');
+    assert.ok(builder.pendingChange);
+    builder.cancelConfigurationChange();
+    assert.deepEqual(builder.previewConfiguration, before);
+    builder.applyFinishToAllDoors();
+    assert.ok(builder.pendingChange);
+    builder.confirmConfigurationChange();
+    assert.deepEqual(builder.previewConfiguration.infillIdsByDoor, [[null,null,null], [null,null,null]]);
+    assert.deepEqual(builder.previewConfiguration.panelIdsByDoor, before.panelIdsByDoor);
+});
+
+test('size and colour changes preserve independent panel choices and surviving selections', () => {
+    const builder = editingBuilder();
+    builder.previewConfiguration.infillIdsByDoor = [[7,8,null], [8,null,7]];
+    const before = structuredClone(builder.previewConfiguration);
+    const selection = { ...builder.previewSelection };
+    const resized = reconcilePreviewConfiguration({
+        ...before, openingWidth: 4200, openingHeight: 1800, frameColor: 'silver',
+    }, before);
+    assert.deepEqual(resized.infillIdsByDoor, before.infillIdsByDoor);
+    assert.deepEqual(resized.panelIdsByDoor, before.panelIdsByDoor);
+    assert.deepEqual(reconcilePreviewSelection(selection, previewSelectionTargets(resized)), selection);
+    const scene = createPreviewScene(resized, builder.metadata, { width: 390, height: 300 });
+    assert.deepEqual(scene.doors.map(door => door.panels.map(panel => panel.fill)), [
+        ['#AABBCC','#B8B8B8','#B8B8B8'], ['#B8B8B8','#B8B8B8','#AABBCC'],
+    ]);
+});
