@@ -2,6 +2,7 @@
 
 namespace App\Filament\Pages;
 
+use App\Enums\SlidingDoorBuilderStep;
 use BackedEnum;
 use BezhanSalleh\FilamentShield\Traits\HasPageShield;
 use Filament\Pages\Page;
@@ -25,5 +26,16 @@ class SlidingDoorBuilder extends Page
     public function getTitle(): string
     {
         return __('sliding_door_builder.title');
+    }
+
+    /**
+     * @return array{steps: list<SlidingDoorBuilderStep>, initialStep: SlidingDoorBuilderStep}
+     */
+    protected function getViewData(): array
+    {
+        return [
+            'steps' => SlidingDoorBuilderStep::cases(),
+            'initialStep' => SlidingDoorBuilderStep::Size,
+        ];
     }
 }

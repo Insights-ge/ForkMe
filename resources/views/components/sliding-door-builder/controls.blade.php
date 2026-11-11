@@ -1,15 +1,15 @@
-@props(['steps'])
+@props(['steps', 'initialStep'])
 
 <div>
-    @foreach ($steps as $number => $step)
+    @foreach ($steps as $step)
         <div
-            id="builder-step-{{ $number }}"
-            x-show="activeStep === {{ $number }}"
-            @if ($number !== 1) x-cloak @endif
+            id="builder-step-{{ $step->value }}"
+            x-show="activeStep === {{ $step->value }}"
+            @if ($step !== $initialStep) x-cloak @endif
         >
-            <x-filament::section :heading="$step['label']">
+            <x-filament::section :heading="$step->getLabel()">
                 <p class="text-sm text-gray-500 dark:text-gray-400">
-                    {{ $step['description'] }}
+                    {{ $step->getDescription() }}
                 </p>
             </x-filament::section>
         </div>

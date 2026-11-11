@@ -2,15 +2,15 @@
 
 <div class="overflow-x-auto">
     <x-filament::tabs :label="__('sliding_door_builder.steps_label')" class="min-w-max">
-        @foreach ($steps as $number => $step)
+        @foreach ($steps as $step)
             <x-filament::tabs.item
-                :badge="$number"
-                :alpine-active="'activeStep === ' . $number"
-                x-on:click="activeStep = {{ $number }}"
-                x-bind:aria-current="activeStep === {{ $number }} ? 'step' : null"
-                aria-controls="builder-step-{{ $number }}"
+                :badge="$step->value"
+                :alpine-active="'activeStep === ' . $step->value"
+                x-on:click="activeStep = {{ $step->value }}"
+                x-bind:aria-current="activeStep === {{ $step->value }} ? 'step' : null"
+                aria-controls="builder-step-{{ $step->value }}"
             >
-                {{ $step['label'] }}
+                {{ $step->getLabel() }}
             </x-filament::tabs.item>
         @endforeach
     </x-filament::tabs>
