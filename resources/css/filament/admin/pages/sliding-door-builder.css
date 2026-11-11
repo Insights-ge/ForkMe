@@ -96,6 +96,41 @@
         min-height: 12rem;
     }
 
+    .sliding-door-builder .builder-preview-canvas {
+        position: relative;
+        width: 100%;
+        height: 18rem;
+        min-width: 0;
+    }
+
+    .sliding-door-builder .builder-preview-svg,
+    .sliding-door-builder .builder-preview-placeholder {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+    }
+
+    .sliding-door-builder .builder-preview-placeholder {
+        display: grid;
+        align-items: center;
+    }
+
+    .sliding-door-builder .builder-preview-svg {
+        color: var(--gray-700);
+    }
+
+    .sliding-door-builder .builder-preview-svg:where(.dark, .dark *) {
+        color: var(--gray-200);
+    }
+
+    .sliding-door-builder .builder-preview-annotation {
+        fill: currentColor;
+        font-family: var(--font-sans);
+        font-size: 11px;
+        font-variant-numeric: tabular-nums;
+    }
+
     .sliding-door-builder .builder-preview {
         order: -1;
     }
@@ -133,6 +168,10 @@
 
         .sliding-door-builder .builder-preview .fi-empty-state {
             min-height: 22rem;
+        }
+
+        .sliding-door-builder .builder-preview-canvas {
+            height: 26rem;
         }
     }
 }
