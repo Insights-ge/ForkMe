@@ -1,6 +1,7 @@
 <?php
 
 use App\Enums\Role;
+use App\Enums\SlidingDoorBuilderStep;
 use App\Filament\Pages\SlidingDoorBuilder;
 use App\Models\User;
 use Database\Seeders\AdminPermissionSeeder;
@@ -26,13 +27,17 @@ test('guests are redirected to the admin login when opening the builder', functi
         ->assertSessionHas('url.intended', $url);
 });
 
+test('guest JSON requests to the builder are unauthenticated', function () {
+    $this->getJson(SlidingDoorBuilder::getUrl(panel: 'admin'))->assertUnauthorized();
+});
+
 test('admins and super admins can open the builder using their session locale', function (Role $role, string $locale) {
     PermissionRole::findOrCreate($role->value, 'web');
     $this->seed([RoleSeeder::class, AdminPermissionSeeder::class, SuperAdminPermissionSeeder::class]);
     $user = User::factory()->create();
     $user->assignRole($role);
 
-    $this->actingAs($user)
+    $response = $this->actingAs($user)
         ->withSession(['locale' => $locale])
         ->get(SlidingDoorBuilder::getUrl(panel: 'admin'))
         ->assertOk()
@@ -44,13 +49,19 @@ test('admins and super admins can open the builder using their session locale', 
         ->assertDontSee('Demo in development')
         ->assertSee('lang="' . $locale . '"', false);
 
+    foreach (SlidingDoorBuilderStep::cases() as $step) {
+        $response->assertSee($step->getLabel());
+        $response->assertSee($step->getDescription());
+    }
+
     Livewire::test(SlidingDoorBuilder::class)
         ->assertSuccessful()
         ->assertViewIs('filament.admin.pages.sliding-door-builder');
     expect(SlidingDoorBuilder::canAccess())->toBeTrue();
+    expect(SlidingDoorBuilder::shouldRegisterNavigation())->toBeTrue();
 })->with([Role::Admin, Role::SuperAdmin])->with(['en', 'ka']);
 
-test('users with no permitted role cannot open the builder', function (?Role $role) {
+test('users without builder permission cannot open the builder in either locale', function (?Role $role, string $locale) {
     $user = User::factory()->create();
 
     if ($role !== null) {
@@ -59,21 +70,39 @@ test('users with no permitted role cannot open the builder', function (?Role $ro
     }
 
     $this->actingAs($user)
+        ->withSession(['locale' => $locale])
         ->get(SlidingDoorBuilder::getUrl(panel: 'admin'))
         ->assertForbidden();
 
     Livewire::test(SlidingDoorBuilder::class)->assertForbidden();
     expect(SlidingDoorBuilder::canAccess())->toBeFalse();
-})->with([null, Role::User]);
+    expect(SlidingDoorBuilder::shouldRegisterNavigation())->toBeFalse();
+})->with([null, Role::User])->with(['en', 'ka']);
 
-test('an admin without the builder permission cannot access the page', function () {
-    PermissionRole::findOrCreate(Role::Admin->value, 'web');
+test('admin roles without the builder permission cannot access the page', function (Role $role) {
+    PermissionRole::findOrCreate($role->value, 'web');
     $user = User::factory()->create();
-    $user->assignRole(Role::Admin);
+    $user->assignRole($role);
     $this->actingAs($user);
 
     $this->get(SlidingDoorBuilder::getUrl(panel: 'admin'))->assertForbidden();
     Livewire::test(SlidingDoorBuilder::class)->assertForbidden();
+    expect(SlidingDoorBuilder::shouldRegisterNavigation())->toBeFalse();
+})->with([Role::Admin, Role::SuperAdmin]);
+
+test('revoking builder permission blocks the next Livewire request', function () {
+    $permission = Permission::findOrCreate('View:SlidingDoorBuilder', 'web');
+    $user = User::factory()->create();
+    $user->givePermissionTo($permission);
+    $this->actingAs($user);
+
+    $component = Livewire::test(SlidingDoorBuilder::class)->assertSuccessful();
+
+    $user->revokePermissionTo($permission);
+    $user->unsetRelations();
+
+    $component->call('$refresh')->assertForbidden();
+    $this->get(SlidingDoorBuilder::getUrl(panel: 'admin'))->assertForbidden();
     expect(SlidingDoorBuilder::shouldRegisterNavigation())->toBeFalse();
 });
 
