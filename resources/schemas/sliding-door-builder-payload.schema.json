@@ -15,13 +15,36 @@
             }
         },
         "metadata": {
-            "description": "Reserved for presentation presets and provisional metadata; currently empty.",
+            "description": "Presentation presets, kept separate from catalog facts.",
             "type": "object",
             "additionalProperties": false,
-            "properties": {}
+            "required": ["layoutPresets"],
+            "properties": {
+                "layoutPresets": { "type": "array", "items": { "$ref": "#/$defs/layoutPreset" } }
+            }
         }
     },
     "$defs": {
+        "layoutPreset": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "label", "panelWeights", "requiresPartition"],
+            "properties": {
+                "id": { "enum": ["full_panel", "two_horizontal_panels", "three_horizontal_panels"] },
+                "label": { "type": "string" },
+                "panelWeights": {
+                    "description": "Relative heights from top to bottom. Equal weights produce equal horizontal panels.",
+                    "type": "array",
+                    "items": { "type": "integer", "minimum": 1 }
+                },
+                "requiresPartition": { "type": "boolean" }
+            },
+            "oneOf": [
+                { "properties": { "id": { "const": "full_panel" }, "panelWeights": { "const": [1] }, "requiresPartition": { "const": false } } },
+                { "properties": { "id": { "const": "two_horizontal_panels" }, "panelWeights": { "const": [1, 1] }, "requiresPartition": { "const": true } } },
+                { "properties": { "id": { "const": "three_horizontal_panels" }, "panelWeights": { "const": [1, 1, 1] }, "requiresPartition": { "const": true } } }
+            ]
+        },
         "id": { "type": "integer", "minimum": 1 },
         "model": {
             "type": "object",

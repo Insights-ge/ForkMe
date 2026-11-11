@@ -4,6 +4,11 @@ return [
     'title' => 'Sliding door builder',
     'navigation_label' => 'Builder',
     'steps_label' => 'Door builder steps',
+    'layouts' => [
+        'full_panel' => 'Full panel',
+        'two_horizontal_panels' => 'Two equal horizontal panels',
+        'three_horizontal_panels' => 'Three equal horizontal panels',
+    ],
     'steps' => [
         'opening' => [
             'label' => 'Size',

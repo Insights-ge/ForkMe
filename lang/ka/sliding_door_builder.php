@@ -4,6 +4,11 @@ return [
     'title' => 'გასაგორებელი კარის აწყობა',
     'navigation_label' => 'აწყობა',
     'steps_label' => 'კარის აწყობის ნაბიჯები',
+    'layouts' => [
+        'full_panel' => 'მთლიანი პანელი',
+        'two_horizontal_panels' => 'ორი თანაბარი ჰორიზონტალური პანელი',
+        'three_horizontal_panels' => 'სამი თანაბარი ჰორიზონტალური პანელი',
+    ],
     'steps' => [
         'opening' => [
             'label' => 'ზომები',
