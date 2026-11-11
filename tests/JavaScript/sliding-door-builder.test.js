@@ -83,3 +83,35 @@ test('shared preset choices update both door divisions and preserve unrelated co
     assert.equal(builder.previewConfiguration, null);
     assert.equal(builder.selectedLayoutId, null);
 });
+
+function editingBuilder() {
+    const builder = createBuilder();
+    builder.catalog.infills = [{ id: 7, code: 'A', description: 'Mapped' }, { id: 8, code: 'B', description: 'Neutral' }];
+    builder.metadata.layoutPresets = [
+        { id: 'full_panel', panelWeights: [1] },
+        { id: 'two_horizontal_panels', panelWeights: [1, 1] },
+        { id: 'three_horizontal_panels', panelWeights: [1, 1, 1] },
+    ];
+    let id = 0;
+    builder.previewConfiguration = reconcilePreviewConfiguration(builder.previewConfiguration, null, () => `edit-${++id}`);
+    builder.previewDoors = builder.previewConfiguration.doorIds.map((doorId, index) => ({
+        id: doorId, index,
+        panels: builder.previewConfiguration.panelIdsByDoor[index].map((panelId, panelIndex) => ({ id: panelId, index: panelIndex })),
+    }));
+    builder.selectPreviewPanel(builder.previewDoors[0].id, builder.previewDoors[0].panels[0].id);
+    return builder;
+}
+
+test('palette accepts catalog finishes for a selected panel and rejects unknown finishes', () => {
+    const builder = editingBuilder();
+    builder.chooseInfill(8);
+    assert.equal(builder.paletteInfillId, 8);
+    assert.deepEqual(builder.infillVisual(8), builder.metadata.neutralVisual);
+    builder.chooseInfill(999);
+    assert.equal(builder.paletteInfillId, 8);
+    builder.chooseInfill(null);
+    assert.equal(builder.paletteInfillId, null);
+    builder.clearPreviewSelection();
+    builder.chooseInfill(7);
+    assert.equal(builder.paletteInfillId, null);
+});

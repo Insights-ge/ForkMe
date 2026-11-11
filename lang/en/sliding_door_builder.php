@@ -17,6 +17,11 @@ return [
         'two_horizontal_panels' => 'Two equal horizontal panels',
         'three_horizontal_panels' => 'Three equal horizontal panels',
     ],
+    'finishes' => [
+        'title' => 'Panel finish',
+        'select_panel' => 'Select a door and panel in the preview to edit its finish.',
+        'unselected' => 'No finish selected',
+    ],
     'steps' => [
         'opening' => [
             'label' => 'Size',

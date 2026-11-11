@@ -21,9 +21,20 @@ export default function slidingDoorBuilder({ initialStep, payload, previewLabels
             frameColor: 'black',
             panelWeights: [1, 1, 1],
         },
+        paletteInfillId: null,
         hasPreview: false,
         previewDoors: [],
         previewSelection: { doorId: null, panelId: null },
+
+        get selectedPreviewPanel() {
+            return this.selectedPreviewDoor?.panels.find((panel) => panel.id === this.previewSelection.panelId) ?? null;
+        },
+
+        chooseInfill(infillId) {
+            if (this.selectedPreviewPanel && (infillId === null || this.catalog.infills.some((infill) => infill.id === infillId))) {
+                this.paletteInfillId = infillId;
+            }
+        },
 
         get selectedLayoutId() {
             const weights = this.previewConfiguration?.panelWeights;
