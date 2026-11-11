@@ -115,3 +115,26 @@ test('palette accepts catalog finishes for a selected panel and rejects unknown 
     builder.chooseInfill(7);
     assert.equal(builder.paletteInfillId, null);
 });
+
+
+test('finish edits update only the selected panel and render mapped or neutral fills immediately', () => {
+    const builder = editingBuilder();
+    const original = structuredClone(builder.previewConfiguration);
+    builder.chooseInfill(7);
+    assert.deepEqual(builder.previewConfiguration.infillIdsByDoor, [[7, null, null], [null, null, null]]);
+    let scene = createPreviewScene(builder.previewConfiguration, builder.metadata, { width: 600, height: 400 });
+    assert.equal(scene.doors[0].panels[0].fill, '#AABBCC');
+    assert.equal(scene.doors[1].panels[0].fill, '#B8B8B8');
+    builder.selectPreviewPanel(builder.previewDoors[1].id, builder.previewDoors[1].panels[2].id);
+    assert.equal(builder.paletteInfillId, null);
+    builder.chooseInfill(8);
+    assert.deepEqual(builder.previewConfiguration.infillIdsByDoor, [[7, null, null], [null, null, 8]]);
+    builder.selectPreviewPanel(builder.previewDoors[0].id, builder.previewDoors[0].panels[0].id);
+    assert.equal(builder.paletteInfillId, 7);
+    builder.chooseInfill(null);
+    scene = createPreviewScene(builder.previewConfiguration, builder.metadata, { width: 600, height: 400 });
+    assert.equal(scene.doors[0].panels[0].fill, '#B8B8B8');
+    assert.equal(builder.previewConfiguration.openingWidth, original.openingWidth);
+    assert.deepEqual(builder.previewConfiguration.doorIds, original.doorIds);
+    assert.deepEqual(builder.previewConfiguration.panelIdsByDoor, original.panelIdsByDoor);
+});

@@ -21,7 +21,6 @@ export default function slidingDoorBuilder({ initialStep, payload, previewLabels
             frameColor: 'black',
             panelWeights: [1, 1, 1],
         },
-        paletteInfillId: null,
         hasPreview: false,
         previewDoors: [],
         previewSelection: { doorId: null, panelId: null },
@@ -30,9 +29,24 @@ export default function slidingDoorBuilder({ initialStep, payload, previewLabels
             return this.selectedPreviewDoor?.panels.find((panel) => panel.id === this.previewSelection.panelId) ?? null;
         },
 
+        get paletteInfillId() {
+            const door = this.selectedPreviewDoor;
+            const panel = this.selectedPreviewPanel;
+            return door && panel
+                ? this.previewConfiguration?.infillIdsByDoor?.[door.index]?.[panel.index] ?? null
+                : null;
+        },
+
         chooseInfill(infillId) {
             if (this.selectedPreviewPanel && (infillId === null || this.catalog.infills.some((infill) => infill.id === infillId))) {
-                this.paletteInfillId = infillId;
+                const door = this.selectedPreviewDoor;
+                const panel = this.selectedPreviewPanel;
+                const infillIdsByDoor = this.previewDoors.map((candidate) => candidate.panels.map((item) => (
+                    candidate.id === door.id && item.id === panel.id
+                        ? infillId
+                        : this.previewConfiguration.infillIdsByDoor?.[candidate.index]?.[item.index] ?? null
+                )));
+                this.previewConfiguration = { ...this.previewConfiguration, infillIdsByDoor };
             }
         },
 
