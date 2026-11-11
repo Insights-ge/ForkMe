@@ -1,0 +1,83 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "Sliding door builder payload",
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["catalog", "metadata"],
+    "properties": {
+        "catalog": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["models", "infills"],
+            "properties": {
+                "models": { "type": "array", "items": { "$ref": "#/$defs/model" } },
+                "infills": { "type": "array", "items": { "$ref": "#/$defs/infill" } }
+            }
+        },
+        "metadata": {
+            "description": "Reserved for presentation presets and provisional metadata; currently empty.",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {}
+        }
+    },
+    "$defs": {
+        "id": { "type": "integer", "minimum": 1 },
+        "model": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "name", "minHeight", "maxHeight", "minWidth", "maxWidth", "notRecommendedHeightMin", "notRecommendedHeightMax", "variants"],
+            "properties": {
+                "id": { "$ref": "#/$defs/id" },
+                "name": { "type": "string" },
+                "minHeight": { "type": "integer" },
+                "maxHeight": { "type": "integer" },
+                "minWidth": { "type": "integer" },
+                "maxWidth": { "type": "integer" },
+                "notRecommendedHeightMin": { "type": ["integer", "null"] },
+                "notRecommendedHeightMax": { "type": ["integer", "null"] },
+                "variants": { "type": "array", "items": { "$ref": "#/$defs/variant" } }
+            }
+        },
+        "variant": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "name", "color", "frameDesignCode", "heightRangeMin", "heightRangeMax", "hasPartition", "hasSoftCloseMechanism", "components"],
+            "properties": {
+                "id": { "$ref": "#/$defs/id" },
+                "name": { "type": "string" },
+                "color": { "enum": ["black", "inox", "graphite", "silver"] },
+                "frameDesignCode": { "type": "string" },
+                "heightRangeMin": { "type": "integer" },
+                "heightRangeMax": { "type": "integer" },
+                "hasPartition": { "type": "boolean" },
+                "hasSoftCloseMechanism": { "type": "boolean" },
+                "components": { "type": "array", "items": { "$ref": "#/$defs/component" } }
+            }
+        },
+        "component": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "type", "incompatibleInfillIds"],
+            "properties": {
+                "id": { "$ref": "#/$defs/id" },
+                "type": { "enum": ["side_profile", "top_rail", "bottom_rail", "partition", "soft_close_mechanism"] },
+                "incompatibleInfillIds": {
+                    "type": "array",
+                    "uniqueItems": true,
+                    "items": { "$ref": "#/$defs/id" }
+                }
+            }
+        },
+        "infill": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "code", "description"],
+            "properties": {
+                "id": { "$ref": "#/$defs/id" },
+                "code": { "type": "string" },
+                "description": { "type": "string" }
+            }
+        }
+    }
+}

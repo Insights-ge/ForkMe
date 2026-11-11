@@ -2,7 +2,7 @@
     <div
         x-load
         x-load-src="{{ \Illuminate\Support\Facades\Vite::asset('resources/js/sliding-door-builder.js') }}"
-        x-data="slidingDoorBuilder({ initialStep: {{ $initialStep->value }} })"
+        x-data="slidingDoorBuilder({ initialStep: {{ $initialStep->value }}, payload: @js($builderPayload) })"
         class="sliding-door-builder grid grid-cols-1 gap-4 sm:gap-6"
     >
         <x-sliding-door-builder.step-navigation :steps="$steps" />
