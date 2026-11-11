@@ -34,7 +34,7 @@ test('the browser contract keeps empty catalog arrays separate from the metadata
     expect($decoded->catalog->models)->toBe([]);
     expect($decoded->catalog->infills)->toBe([]);
     expect($decoded->metadata)->toBeInstanceOf(stdClass::class);
-    expect(array_keys(get_object_vars($decoded->metadata)))->toBe(['layoutPresets']);
+    expect(array_keys(get_object_vars($decoded->metadata)))->toBe(['layoutPresets', 'frameColors', 'infillVisuals', 'neutralVisual']);
     expect($decoded->metadata->layoutPresets)->toHaveCount(3);
 });
 
@@ -91,10 +91,26 @@ test('unauthorized requests never read the catalog', function () {
     Livewire::test(SlidingDoorBuilder::class)->assertForbidden();
 });
 
+test('unavailable catalog data shows a translated empty state instead of configuration steps', function (string $locale, string $missing) {
+    if ($missing === 'infills') {
+        DoorVariant::factory()->create();
+    }
+
+    $user = User::factory()->create();
+    $user->givePermissionTo(Permission::findOrCreate('View:SlidingDoorBuilder', 'web'));
+
+    $this->actingAs($user)->withSession(['locale' => $locale])
+        ->get(SlidingDoorBuilder::getUrl(panel: 'admin'))
+        ->assertOk()
+        ->assertSee(__('sliding_door_builder.catalog.no_' . $missing . '_heading', [], $locale))
+        ->assertDontSee('builder-step-navigation', false);
+})->with(['en', 'ka'])->with(['models', 'infills']);
+
 test('the published schema uses the application enum values', function () {
     $schema = json_decode(file_get_contents(resource_path('schemas/sliding-door-builder-payload.schema.json')), true, flags: JSON_THROW_ON_ERROR);
 
     expect($schema['$defs']['variant']['properties']['color']['enum'])->toBe(array_column(DoorColor::cases(), 'value'));
+    expect($schema['$defs']['frameColor']['properties']['color']['enum'])->toBe(array_column(DoorColor::cases(), 'value'));
     expect($schema['$defs']['component']['properties']['type']['enum'])->toBe(array_column(ComponentType::cases(), 'value'));
     expect($schema['$defs']['layoutPreset']['properties']['id']['enum'])->toBe(array_column(BuilderLayout::cases(), 'value'));
 });

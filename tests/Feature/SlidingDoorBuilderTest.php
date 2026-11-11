@@ -3,6 +3,8 @@
 use App\Enums\Role;
 use App\Enums\SlidingDoorBuilderStep;
 use App\Filament\Pages\SlidingDoorBuilder;
+use App\Models\DoorVariant;
+use App\Models\Infill;
 use App\Models\User;
 use Database\Seeders\AdminPermissionSeeder;
 use Database\Seeders\GeneralSettingsSeeder;
@@ -32,6 +34,8 @@ test('guest JSON requests to the builder are unauthenticated', function () {
 });
 
 test('admins and super admins can open the builder using their session locale', function (Role $role, string $locale) {
+    DoorVariant::factory()->create();
+    Infill::factory()->create();
     PermissionRole::findOrCreate($role->value, 'web');
     $this->seed([RoleSeeder::class, AdminPermissionSeeder::class, SuperAdminPermissionSeeder::class]);
     $user = User::factory()->create();

@@ -7,6 +7,7 @@ use App\Data\BuilderComponentCompatibilityData;
 use App\Data\BuilderDoorModelData;
 use App\Data\BuilderDoorVariantData;
 use App\Data\BuilderInfillData;
+use App\Enums\ComponentType;
 use App\Enums\DoorModelStatus;
 use App\Models\Component;
 use App\Models\DoorModel;
@@ -15,6 +16,10 @@ use App\Models\Infill;
 
 class BuilderCatalogReadService
 {
+    public function __construct(
+        private readonly BuilderCatalogRecordValidator $validator,
+    ) {}
+
     public function read(): BuilderCatalogData
     {
         return new BuilderCatalogData(
@@ -34,7 +39,9 @@ class BuilderCatalogReadService
             ->with($this->variantRelationships())
             ->orderBy('name')->orderBy('id')
             ->get()
+            ->filter(fn (DoorModel $model): bool => $this->validator->isModelUsable($model))
             ->map(fn (DoorModel $model): BuilderDoorModelData => $this->mapModel($model))
+            ->filter(fn (BuilderDoorModelData $model): bool => $model->variants !== [])
             ->all());
     }
 
@@ -64,11 +71,12 @@ class BuilderCatalogReadService
             maxHeight: $model->max_height,
             minWidth: $model->min_width,
             maxWidth: $model->max_width,
-            notRecommendedHeightMin: $model->not_recommended_height_min,
-            notRecommendedHeightMax: $model->not_recommended_height_max,
-            variants: array_values($model->variants->sortBy([
-                ['product_full_name', 'asc'], ['id', 'asc'],
-            ])->map(fn (DoorVariant $variant): BuilderDoorVariantData => $this->mapVariant($variant))->all()),
+            notRecommendedHeightMin: $this->validator->hasUsableAdvisoryRange($model) ? $model->not_recommended_height_min : null,
+            notRecommendedHeightMax: $this->validator->hasUsableAdvisoryRange($model) ? $model->not_recommended_height_max : null,
+            variants: array_values($model->variants
+                ->filter(fn (DoorVariant $variant): bool => $this->validator->isVariantUsable($variant))->sortBy([
+                    ['product_full_name', 'asc'], ['id', 'asc'],
+                ])->map(fn (DoorVariant $variant): BuilderDoorVariantData => $this->mapVariant($variant))->all()),
         );
     }
 
@@ -76,8 +84,14 @@ class BuilderCatalogReadService
     {
         $components = [];
 
-        foreach ([$variant->sideProfile, $variant->topRail, $variant->bottomRail, $variant->partition, $variant->softCloseMechanism] as $component) {
-            if ($component !== null) {
+        foreach ([
+            ComponentType::SideProfile->value => $variant->sideProfile,
+            ComponentType::TopRail->value => $variant->topRail,
+            ComponentType::BottomRail->value => $variant->bottomRail,
+            ComponentType::Partition->value => $variant->partition,
+            ComponentType::SoftCloseMechanism->value => $variant->softCloseMechanism,
+        ] as $type => $component) {
+            if ($component !== null && $this->validator->componentMatches($component, ComponentType::from($type))) {
                 $components[] = $this->mapComponent($component);
             }
         }
@@ -112,6 +126,7 @@ class BuilderCatalogReadService
             ->select(['id', 'code', 'description'])
             ->orderBy('code')->orderBy('id')
             ->get()
+            ->filter(fn (Infill $infill): bool => $this->validator->isInfillUsable($infill))
             ->map(fn (Infill $infill): BuilderInfillData => new BuilderInfillData(
                 id: $infill->id,
                 code: $infill->code,

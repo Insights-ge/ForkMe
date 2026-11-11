@@ -61,16 +61,18 @@ test('component exclusions are preserved without excluding infills from the cata
     expect(array_column($catalog->infills, 'id'))->toEqualCanonicalizing([$excluded->id, $allowed->id]);
 });
 
-test('models without variants and variants without partitions remain readable', function () {
+test('models without variants are omitted and variants without partitions remain readable', function () {
     $empty = DoorModel::factory()->create([
         'name' => 'A system', 'not_recommended_height_min' => null, 'not_recommended_height_max' => null,
     ]);
     $variant = DoorVariant::factory()->withoutPartition()->create();
+    DoorVariant::factory()->for($empty)->create();
+    $withoutVariants = DoorModel::factory()->create();
 
     $catalog = app(BuilderCatalogReadService::class)->read();
 
     $models = collect($catalog->models)->keyBy('id');
-    expect($models[$empty->id]->variants)->toBe([]);
+    expect($models->has($withoutVariants->id))->toBeFalse();
     expect($models[$empty->id]->notRecommendedHeightMin)->toBeNull();
     expect($models[$empty->id]->notRecommendedHeightMax)->toBeNull();
     expect(array_column($models[$variant->door_model_id]->variants[0]->components, 'type'))

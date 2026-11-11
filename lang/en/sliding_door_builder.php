@@ -4,6 +4,12 @@ return [
     'title' => 'Sliding door builder',
     'navigation_label' => 'Builder',
     'steps_label' => 'Door builder steps',
+    'catalog' => [
+        'no_models_heading' => 'No door systems available',
+        'no_models_description' => 'There are currently no door systems available to configure.',
+        'no_infills_heading' => 'No panel finishes available',
+        'no_infills_description' => 'Panel finishes are currently unavailable. Please try again later.',
+    ],
     'layouts' => [
         'full_panel' => 'Full panel',
         'two_horizontal_panels' => 'Two equal horizontal panels',
