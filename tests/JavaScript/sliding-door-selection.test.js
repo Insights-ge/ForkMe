@@ -118,3 +118,27 @@ test('selection actions update builder state without modifying the door configur
     assert.deepEqual(builder.previewSelection, { doorId: null, panelId: null });
     assert.deepEqual(builder.previewConfiguration, before);
 });
+
+test('accessible selection names include door context and reflect current selection', () => {
+    const builder = slidingDoorBuilder({
+        initialStep: 1,
+        payload: { catalog: {}, metadata: {} },
+        previewLabels: {
+            panels_label: 'Select a panel', panels_for_door: 'Panels for door :number',
+            no_selection: 'No door or panel selected.', door_selected: 'Door :number selected.',
+            panel_selected: 'Door :door, panel :panel selected.', panel_label: 'Door :door, panel :panel',
+        },
+    });
+    builder.previewDoors = previewSelectionTargets(reconcilePreviewConfiguration(configuration(), null, identifiers()));
+    const door = builder.previewDoors[1];
+
+    assert.equal(builder.previewSelectionAnnouncement, 'No door or panel selected.');
+    builder.selectPreviewDoor(door.id);
+    assert.equal(builder.previewSelectionAnnouncement, 'Door 2 selected.');
+    assert.equal(builder.previewPanelGroupLabel, 'Panels for door 2');
+    assert.equal(builder.previewPanelAccessibleLabel(1), 'Door 2, panel 2');
+    builder.selectPreviewPanel(door.id, door.panels[1].id);
+    assert.equal(builder.previewSelectionAnnouncement, 'Door 2, panel 2 selected.');
+    builder.clearPreviewSelection();
+    assert.equal(builder.previewSelectionAnnouncement, 'No door or panel selected.');
+});

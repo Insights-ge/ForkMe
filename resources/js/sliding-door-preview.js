@@ -59,16 +59,6 @@ export function createDoorPreview(svg, { metadata, labels, locale, onRender, onS
     }
 
     function select(event) {
-        if (event.type === 'keydown') {
-            if (event.key === 'Escape') {
-                onSelect({ doorId: null, panelId: null });
-                return;
-            }
-            if (event.key !== 'Enter' && event.key !== ' ') {
-                return;
-            }
-            event.preventDefault();
-        }
         const group = event.target.closest?.('.builder-preview-door');
         const panel = event.target.closest?.('.builder-preview-panel');
         onSelect({ doorId: group?.dataset.doorId ?? null, panelId: panel?.dataset.panelId ?? null });
@@ -77,7 +67,6 @@ export function createDoorPreview(svg, { metadata, labels, locale, onRender, onS
     const observer = new ResizeObserver(() => render(configuration));
     observer.observe(svg.parentElement);
     svg.addEventListener('click', select);
-    svg.addEventListener('keydown', select);
 
     return {
         render,
@@ -88,7 +77,6 @@ export function createDoorPreview(svg, { metadata, labels, locale, onRender, onS
         destroy() {
             observer.disconnect();
             svg.removeEventListener('click', select);
-            svg.removeEventListener('keydown', select);
             svg.replaceChildren();
         },
     };
@@ -99,10 +87,9 @@ function drawScene(svg, scene, configuration, labels, locale) {
     title.textContent = labels.drawing_label;
 
     for (const door of scene.doors) {
-        const doorLabel = labels.door_label.replace(':number', String(door.index + 1));
         const group = element(svg, 'g', {
             'data-door-index': door.index, 'data-door-id': door.id,
-            class: 'builder-preview-door', role: 'group', 'aria-label': doorLabel,
+            class: 'builder-preview-door',
         });
         for (const panel of door.panels) {
             element(group, 'rect', {
@@ -111,10 +98,6 @@ function drawScene(svg, scene, configuration, labels, locale) {
                 class: 'builder-preview-panel',
                 'data-panel-index': panel.index,
                 'data-panel-id': panel.id,
-                role: 'button',
-                tabindex: 0,
-                'aria-pressed': 'false',
-                'aria-label': labels.panel_label.replace(':door', String(door.index + 1)).replace(':panel', String(panel.index + 1)),
             });
         }
 
@@ -124,11 +107,6 @@ function drawScene(svg, scene, configuration, labels, locale) {
             stroke: scene.frameFill,
             'stroke-width': door.frameWidth,
             class: 'builder-preview-frame',
-            'data-select-door': door.id,
-            role: 'button',
-            tabindex: 0,
-            'aria-pressed': 'false',
-            'aria-label': doorLabel,
         });
         for (const panel of door.panels.slice(1)) {
             line(group, door.x, panel.y, door.x + door.width, panel.y, {
@@ -156,11 +134,9 @@ function applySelection(svg, selection) {
     for (const group of svg.querySelectorAll('.builder-preview-door')) {
         const selected = group.dataset.doorId === selection.doorId;
         group.classList.toggle('is-selected', selected);
-        group.querySelector('.builder-preview-frame').setAttribute('aria-pressed', String(selected));
         for (const panel of group.querySelectorAll('.builder-preview-panel')) {
             const active = selected && panel.dataset.panelId === selection.panelId;
             panel.classList.toggle('is-selected', active);
-            panel.setAttribute('aria-pressed', String(active));
         }
         for (const highlight of group.querySelectorAll('.builder-preview-panel-highlight')) {
             highlight.classList.toggle('is-selected', selected && highlight.dataset.highlightPanelId === selection.panelId);
