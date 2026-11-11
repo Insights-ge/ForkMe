@@ -11,9 +11,12 @@ beforeEach(function () {
     $this->seed();
 });
 
-test('super admins and admins can import door variants', function (string $email) {
-    expect(User::where('email', $email)->first()->can('import', DoorVariant::class))->toBeTrue();
-})->with(['demo@demo.com', 'admin@ltb.ge']);
+test('seeded roles follow the configured door variant import permissions', function (string $email, bool $canImport) {
+    expect(User::where('email', $email)->first()->can('import', DoorVariant::class))->toBe($canImport);
+})->with([
+    ['demo@demo.com', true],
+    ['admin@ltb.ge', false],
+]);
 
 test('users cannot import door variants', function () {
     $user = User::factory()->create();

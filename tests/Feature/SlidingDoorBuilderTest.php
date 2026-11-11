@@ -1,0 +1,110 @@
+<?php
+
+use App\Enums\Role;
+use App\Filament\Pages\SlidingDoorBuilder;
+use App\Models\User;
+use Database\Seeders\AdminPermissionSeeder;
+use Database\Seeders\GeneralSettingsSeeder;
+use Database\Seeders\RoleSeeder;
+use Database\Seeders\SuperAdminPermissionSeeder;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Livewire\Livewire;
+use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role as PermissionRole;
+
+uses(RefreshDatabase::class);
+
+beforeEach(function () {
+    $this->seed(GeneralSettingsSeeder::class);
+});
+
+test('guests are redirected to the admin login when opening the builder', function () {
+    $url = SlidingDoorBuilder::getUrl(panel: 'admin');
+
+    $this->get($url)
+        ->assertRedirect(route('filament.admin.auth.login'))
+        ->assertSessionHas('url.intended', $url);
+});
+
+test('admins and super admins can open the builder using their session locale', function (Role $role, string $locale) {
+    PermissionRole::findOrCreate($role->value, 'web');
+    $this->seed([RoleSeeder::class, AdminPermissionSeeder::class, SuperAdminPermissionSeeder::class]);
+    $user = User::factory()->create();
+    $user->assignRole($role);
+
+    $this->actingAs($user)
+        ->withSession(['locale' => $locale])
+        ->get(SlidingDoorBuilder::getUrl(panel: 'admin'))
+        ->assertOk()
+        ->assertSeeLivewire(SlidingDoorBuilder::class)
+        ->assertSee('Sliding door builder')
+        ->assertSee('lang="' . $locale . '"', false);
+
+    Livewire::test(SlidingDoorBuilder::class)
+        ->assertSuccessful()
+        ->assertViewIs('filament.admin.pages.sliding-door-builder');
+    expect(SlidingDoorBuilder::canAccess())->toBeTrue();
+})->with([Role::Admin, Role::SuperAdmin])->with(['en', 'ka']);
+
+test('users with no permitted role cannot open the builder', function (?Role $role) {
+    $user = User::factory()->create();
+
+    if ($role !== null) {
+        PermissionRole::findOrCreate($role->value, 'web');
+        $user->assignRole($role);
+    }
+
+    $this->actingAs($user)
+        ->get(SlidingDoorBuilder::getUrl(panel: 'admin'))
+        ->assertForbidden();
+
+    Livewire::test(SlidingDoorBuilder::class)->assertForbidden();
+    expect(SlidingDoorBuilder::canAccess())->toBeFalse();
+})->with([null, Role::User]);
+
+test('an admin without the builder permission cannot access the page', function () {
+    PermissionRole::findOrCreate(Role::Admin->value, 'web');
+    $user = User::factory()->create();
+    $user->assignRole(Role::Admin);
+    $this->actingAs($user);
+
+    $this->get(SlidingDoorBuilder::getUrl(panel: 'admin'))->assertForbidden();
+    Livewire::test(SlidingDoorBuilder::class)->assertForbidden();
+    expect(SlidingDoorBuilder::shouldRegisterNavigation())->toBeFalse();
+});
+
+test('the builder permission grants page access without a specific role', function () {
+    $permission = Permission::findOrCreate('View:SlidingDoorBuilder', 'web');
+    $user = User::factory()->create();
+    $user->givePermissionTo($permission);
+    $this->actingAs($user);
+
+    $this->get(SlidingDoorBuilder::getUrl(panel: 'admin'))->assertOk();
+    Livewire::test(SlidingDoorBuilder::class)->assertSuccessful();
+    expect(SlidingDoorBuilder::shouldRegisterNavigation())->toBeTrue();
+});
+
+test('the permission seeders are repeatable and only grant builder access to admin roles', function () {
+    foreach (Role::cases() as $role) {
+        PermissionRole::findOrCreate($role->value, 'web');
+    }
+
+    $unrelatedPermission = Permission::findOrCreate('View:OtherPage', 'web');
+    PermissionRole::findByName(Role::Admin->value, 'web')->givePermissionTo($unrelatedPermission);
+    $this->seed([RoleSeeder::class, AdminPermissionSeeder::class, SuperAdminPermissionSeeder::class]);
+    $this->seed([RoleSeeder::class, AdminPermissionSeeder::class, SuperAdminPermissionSeeder::class]);
+
+    expect(Permission::query()->where('name', 'View:SlidingDoorBuilder')->where('guard_name', 'web')->count())->toBe(1);
+    expect(PermissionRole::findByName(Role::Admin->value, 'web')->hasPermissionTo('View:SlidingDoorBuilder'))->toBeTrue();
+    expect(PermissionRole::findByName(Role::SuperAdmin->value, 'web')->hasPermissionTo('View:SlidingDoorBuilder'))->toBeTrue();
+    expect(PermissionRole::findByName(Role::User->value, 'web')->hasPermissionTo('View:SlidingDoorBuilder'))->toBeFalse();
+    expect(PermissionRole::findByName(Role::Admin->value, 'web')->hasPermissionTo($unrelatedPermission))->toBeFalse();
+});
+
+test('the builder route has no locale prefix', function () {
+    expect(SlidingDoorBuilder::getUrl(isAbsolute: false, panel: 'admin'))->toBe('/admin/sliding-door-builder');
+
+    $this->get('/sliding-door-builder')->assertNotFound();
+    $this->get('/en/sliding-door-builder')->assertNotFound();
+    $this->get('/ka/sliding-door-builder')->assertNotFound();
+});
